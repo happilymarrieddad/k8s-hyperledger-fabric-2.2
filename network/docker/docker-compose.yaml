@@ -31,10 +31,10 @@ services:
       - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
       - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
     volumes:
-      - ../crypto-config/ordererOrganizations/orderer/orderers/orderer0/msp:/var/hyperledger/orderer/msp
-      - ../crypto-config/ordererOrganizations/orderer/orderers/orderer0/tls:/var/hyperledger/orderer/tls
-      - ./state/orderer0:/var/hyperledger/production/orderer
-      - ./orderer:/var/hyperledger/orderer/data
+      - ../../crypto-config/ordererOrganizations/orderer/orderers/orderer0/msp:/var/hyperledger/orderer/msp
+      - ../../crypto-config/ordererOrganizations/orderer/orderers/orderer0/tls:/var/hyperledger/orderer/tls
+      - ../../state/orderer0:/var/hyperledger/production/orderer
+      - ../../orderer:/var/hyperledger/orderer/data
     ports:
       - 7050:7050
     networks:
@@ -61,10 +61,10 @@ services:
       - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
       - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
     volumes:
-      - ../crypto-config/ordererOrganizations/orderer/orderers/orderer1/msp:/var/hyperledger/orderer/msp
-      - ../crypto-config/ordererOrganizations/orderer/orderers/orderer1/tls:/var/hyperledger/orderer/tls
-      - ./state/orderer1:/var/hyperledger/production/orderer
-      - ./orderer:/var/hyperledger/orderer/data
+      - ../../crypto-config/ordererOrganizations/orderer/orderers/orderer1/msp:/var/hyperledger/orderer/msp
+      - ../../crypto-config/ordererOrganizations/orderer/orderers/orderer1/tls:/var/hyperledger/orderer/tls
+      - ../../state/orderer1:/var/hyperledger/production/orderer
+      - ../../orderer:/var/hyperledger/orderer/data
     ports:
       - 8050:7050
     networks:
@@ -90,10 +90,10 @@ services:
       - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
       - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
     volumes:
-      - ../crypto-config/ordererOrganizations/orderer/orderers/orderer2/msp:/var/hyperledger/orderer/msp
-      - ../crypto-config/ordererOrganizations/orderer/orderers/orderer2/tls:/var/hyperledger/orderer/tls
-      - ./state/orderer2:/var/hyperledger/production/orderer
-      - ./orderer:/var/hyperledger/orderer/data
+      - ../../crypto-config/ordererOrganizations/orderer/orderers/orderer2/msp:/var/hyperledger/orderer/msp
+      - ../../crypto-config/ordererOrganizations/orderer/orderers/orderer2/tls:/var/hyperledger/orderer/tls
+      - ../../state/orderer2:/var/hyperledger/production/orderer
+      - ../../orderer:/var/hyperledger/orderer/data
     ports:
       - 9050:7050
     networks:
@@ -107,7 +107,7 @@ services:
       - COUCHDB_USER=nick
       - COUCHDB_PASSWORD=1234
     volumes:
-      - ./state/peer0-org1-couchdb:/opt/couchdb/data
+      - ../../state/peer0-org1-couchdb:/opt/couchdb/data
     ports:
       - 5984:5984
     networks:
@@ -140,11 +140,11 @@ services:
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
     volumes:
       - /var/run/:/host/var/run
-      - ../crypto-config/peerOrganizations/org1/peers/peer0-org1/msp:/etc/hyperledger/fabric/msp
-      - ../crypto-config/peerOrganizations/org1/peers/peer0-org1/tls:/etc/hyperledger/fabric/tls
-      - ./state/peer0-org1:/var/hyperledger/production
-      - ../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
-      - .../scripts/:/scripts/
+      - ../../crypto-config/peerOrganizations/org1/peers/peer0-org1/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/org1/peers/peer0-org1/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer0-org1:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
     ports:
       - 7051:7051
     depends_on:
@@ -160,7 +160,7 @@ services:
       - COUCHDB_USER=nick
       - COUCHDB_PASSWORD=1234
     volumes:
-      - ./state/peer1-org1-couchdb:/opt/couchdb/data
+      - ../../state/peer1-org1-couchdb:/opt/couchdb/data
     ports:
       - 6984:5984
     networks:
@@ -193,11 +193,11 @@ services:
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
     volumes:
       - /var/run/:/host/var/run
-      - ../crypto-config/peerOrganizations/org1/peers/peer1-org1/msp:/etc/hyperledger/fabric/msp
-      - ../crypto-config/peerOrganizations/org1/peers/peer1-org1/tls:/etc/hyperledger/fabric/tls
-      - ./state/peer1-org1:/var/hyperledger/production
-      - ../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
-      - .../scripts/:/scripts/
+      - ../../crypto-config/peerOrganizations/org1/peers/peer1-org1/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/org1/peers/peer1-org1/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer1-org1:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
     ports:
       - 8051:7051
     depends_on:
@@ -215,7 +215,7 @@ services:
       - COUCHDB_USER=nick
       - COUCHDB_PASSWORD=1234
     volumes:
-      - ./state/peer0-org2-couchdb:/opt/couchdb/data
+      - ../../state/peer0-org2-couchdb:/opt/couchdb/data
     ports:
       - 7984:5984
     networks:
@@ -248,11 +248,11 @@ services:
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
     volumes:
       - /var/run/:/host/var/run
-      - ../crypto-config/peerOrganizations/org2/peers/peer0-org2/msp:/etc/hyperledger/fabric/msp
-      - ../crypto-config/peerOrganizations/org2/peers/peer0-org2/tls:/etc/hyperledger/fabric/tls
-      - ./state/peer0-org2:/var/hyperledger/production
-      - ../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
-      - .../scripts/:/scripts/
+      - ../../crypto-config/peerOrganizations/org2/peers/peer0-org2/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/org2/peers/peer0-org2/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer0-org2:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
     ports:
       - 9051:7051
     depends_on:
@@ -268,7 +268,7 @@ services:
       - COUCHDB_USER=nick
       - COUCHDB_PASSWORD=1234
     volumes:
-      - ./state/peer1-org2-couchdb:/opt/couchdb/data
+      - ../../state/peer1-org2-couchdb:/opt/couchdb/data
     ports:
       - 8984:5984
     networks:
@@ -301,11 +301,11 @@ services:
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
     volumes:
       - /var/run/:/host/var/run
-      - ../crypto-config/peerOrganizations/org2/peers/peer1-org2/msp:/etc/hyperledger/fabric/msp
-      - ../crypto-config/peerOrganizations/org2/peers/peer1-org2/tls:/etc/hyperledger/fabric/tls
-      - ./state/peer1-org2:/var/hyperledger/production
-      - ../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
-      - .../scripts/:/scripts/
+      - ../../crypto-config/peerOrganizations/org2/peers/peer1-org2/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/org2/peers/peer1-org2/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer1-org2:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
     ports:
       - 10051:7051
     depends_on:
@@ -334,13 +334,13 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     volumes:
-      - ./orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
-      - ./chaincode/resources:/opt/gopath/src/resources
-      - ./chaincode/resource_types:/opt/gopath/src/resource_types
-      - ./channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../crypto-config/peerOrganizations/org1:/etc/hyperledger/fabric/msp
-      - ../crypto-config/peerOrganizations/org1/peers/peer0-org1/tls:/etc/hyperledger/fabric/tls
-      - ../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/org1:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/org1/peers/peer0-org1/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
     depends_on:
       - peer0-org1
     command: sleep 500000
@@ -365,13 +365,13 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     volumes:
-      - ./orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
-      - ./chaincode/resources:/opt/gopath/src/resources
-      - ./chaincode/resource_types:/opt/gopath/src/resource_types
-      - ./channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../crypto-config/peerOrganizations/org1:/etc/hyperledger/fabric/msp
-      - ../crypto-config/peerOrganizations/org1/peers/peer1-org1/tls:/etc/hyperledger/fabric/tls
-      - ../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/org1:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/org1/peers/peer1-org1/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
     depends_on:
       - peer0-org1
     command: sleep 500000
@@ -396,13 +396,13 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     volumes:
-      - ./orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
-      - ./chaincode/resources:/opt/gopath/src/resources
-      - ./chaincode/resource_types:/opt/gopath/src/resource_types
-      - ./channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../crypto-config/peerOrganizations/org2:/etc/hyperledger/fabric/msp
-      - ../crypto-config/peerOrganizations/org2/peers/peer0-org2/tls:/etc/hyperledger/fabric/tls
-      - ../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/org2:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/org2/peers/peer0-org2/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
     depends_on:
       - peer0-org2
     command: sleep 500000
@@ -427,13 +427,13 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     volumes:
-      - ./orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
-      - ./chaincode/resources:/opt/gopath/src/resources
-      - ./chaincode/resource_types:/opt/gopath/src/resource_types
-      - ./channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../crypto-config/peerOrganizations/org2:/etc/hyperledger/fabric/msp
-      - ../crypto-config/peerOrganizations/org2/peers/peer1-org2/tls:/etc/hyperledger/fabric/tls
-      - ../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/org2:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/org2/peers/peer1-org2/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
     depends_on:
       - peer1-org2
     command: sleep 500000
@@ -500,7 +500,7 @@ services:
   #     - 4000:4000
   #   volumes:
   #     - ../api:/api
-  #     - ../crypto-config/:/tmp/crypto
+  #     - ../../crypto-config/:/tmp/crypto
   #   depends_on:
   #     explorerdb:
   #       condition: service_healthy

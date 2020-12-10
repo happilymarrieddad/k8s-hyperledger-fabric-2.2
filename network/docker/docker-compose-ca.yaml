@@ -6,7 +6,7 @@ networks:
 services:
   # Servers
   orderers-ca:
-    image: hyperledger/fabric-ca:1.4.9
+    image: hyperledger/fabric-ca:1.4.7
     container_name: orderers-ca
     ports:
       - 7054:7054
@@ -16,13 +16,13 @@ services:
       - PASSWORD=adminpw
       - CSR_HOSTS=orderers-ca
     volumes:
-      - ./state/ca/orderers/server:/etc/hyperledger/fabric-ca-server
-      - .../scripts:/scripts
+      - ../../state/ca/orderers/server:/etc/hyperledger/fabric-ca-server
+      - ../../scripts:/scripts
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
       - fabric-ca
   org1-ca:
-    image: hyperledger/fabric-ca:1.4.9
+    image: hyperledger/fabric-ca:1.4.7
     container_name: org1-ca
     ports:
       - 7055:7054
@@ -32,13 +32,13 @@ services:
       - PASSWORD=adminpw
       - CSR_HOSTS=org1-ca
     volumes:
-      - ./state/ca/org1/server:/etc/hyperledger/fabric-ca-server
-      - .../scripts:/scripts
+      - ../../state/ca/org1/server:/etc/hyperledger/fabric-ca-server
+      - ../../scripts:/scripts
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
       - fabric-ca
   org2-ca:
-    image: hyperledger/fabric-ca:1.4.9
+    image: hyperledger/fabric-ca:1.4.7
     container_name: org2-ca
     ports:
       - 7056:7054
@@ -48,15 +48,15 @@ services:
       - PASSWORD=adminpw
       - CSR_HOSTS=org2-ca
     volumes:
-      - ./state/ca/org2/server:/etc/hyperledger/fabric-ca-server
-      - .../scripts:/scripts
+      - ../../state/ca/org2/server:/etc/hyperledger/fabric-ca-server
+      - ../../scripts:/scripts
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
       - fabric-ca
   # Clients
   orderers-client:
     tty: true
-    image: hyperledger/fabric-ca:1.4.9
+    image: hyperledger/fabric-ca:1.4.7
     container_name: orderers-client
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-client
@@ -67,10 +67,10 @@ services:
       - CA_PASSWORD=adminpw
       - CA_CERT_PATH=/etc/hyperledger/fabric-ca-server/tls-cert.pem
     volumes:
-      - ./state/ca/orderers/client:/etc/hyperledger/fabric-ca-client
-      - .../scripts:/scripts
-      - ./state/ca/orderers/server:/etc/hyperledger/fabric-ca-server
-      - ../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
+      - ../../state/ca/orderers/client:/etc/hyperledger/fabric-ca-client
+      - ../../scripts:/scripts
+      - ../../state/ca/orderers/server:/etc/hyperledger/fabric-ca-server
+      - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
     command: sh -c '/scripts/start-orderer-client.sh'
     networks:
       - fabric-ca
@@ -78,7 +78,7 @@ services:
       - orderers-ca
   org1-client:
     tty: true
-    image: hyperledger/fabric-ca:1.4.9
+    image: hyperledger/fabric-ca:1.4.7
     container_name: org1-client
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-client
@@ -89,10 +89,10 @@ services:
       - CA_PASSWORD=adminpw
       - CA_CERT_PATH=/etc/hyperledger/fabric-ca-server/tls-cert.pem
     volumes:
-      - ./state/ca/org1/client:/etc/hyperledger/fabric-ca-client
-      - .../scripts:/scripts
-      - ./state/ca/org1/server:/etc/hyperledger/fabric-ca-server
-      - ../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
+      - ../../state/ca/org1/client:/etc/hyperledger/fabric-ca-client
+      - ../../scripts:/scripts
+      - ../../state/ca/org1/server:/etc/hyperledger/fabric-ca-server
+      - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
     command: sh -c '/scripts/start-org1-client.sh'
     networks:
       - fabric-ca
@@ -100,7 +100,7 @@ services:
       - org1-ca
   org2-client:
     tty: true
-    image: hyperledger/fabric-ca:1.4.9
+    image: hyperledger/fabric-ca:1.4.7
     container_name: org2-client
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-client
@@ -111,10 +111,10 @@ services:
       - CA_PASSWORD=adminpw
       - CA_CERT_PATH=/etc/hyperledger/fabric-ca-server/tls-cert.pem
     volumes:
-      - ./state/ca/org2/client:/etc/hyperledger/fabric-ca-client
-      - .../scripts:/scripts
-      - ./state/ca/org2/server:/etc/hyperledger/fabric-ca-server
-      - ../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
+      - ../../state/ca/org2/client:/etc/hyperledger/fabric-ca-client
+      - ../../scripts:/scripts
+      - ../../state/ca/org2/server:/etc/hyperledger/fabric-ca-server
+      - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
     command: sh -c '/scripts/start-org2-client.sh'
     networks:
       - fabric-ca

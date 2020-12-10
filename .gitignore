@@ -1,4 +1,7 @@
 **/node_modules
 **/vendor
+**/walletstore
+state
+crypto-config
 fabric-samples
 KEYS.md
