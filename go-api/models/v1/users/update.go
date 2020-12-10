@@ -3,7 +3,7 @@ package users
 import (
 	"errors"
 
-	"github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/models"
+	"k8s-hyperledger-fabric-2.2/go-api/models"
 )
 
 type UpdateOpts struct {

@@ -7,7 +7,7 @@ client:
   organization: org1
 
   logging:
-    level: debug
+    level: info
   
   cryptoconfig:
     path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config

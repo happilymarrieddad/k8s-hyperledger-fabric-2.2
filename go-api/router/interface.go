@@ -6,8 +6,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	V1Router "github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/routes/v1"
-	"github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/hyperledger"
+	V1Router "k8s-hyperledger-fabric-2.2/go-api/routes/v1"
+	"k8s-hyperledger-fabric-2.2/go-api/hyperledger"
 )
 
 const (

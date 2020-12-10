@@ -7,6 +7,8 @@ K8s Hyperledger 2.2 Network
 - [Create aws account](aws.amazon.com)
 - [Create docker hub account](https://hub.docker.com/)
 - curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.9
+- [Install Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [Install Minikube](https://minikube.sigs.k8s.io/docs/start/)
 
 You want to copy over all the bin files into a bin directory where you can easily access them. I usually just like to make a bin folder in my home directory and set the path to include that
 ```bash
@@ -131,7 +133,42 @@ docker exec -it cli-peer0-org2 bash -c 'peer chaincode query -C mainchannel -n r
 docker exec -it cli-peer1-org2 bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
 ```
 
+Okay, now everything should be working as normal. Lets test the apis and make sure they are connected properly.
+```bash
+cd node-api
+node index.js
+```
+
+Start the GO api in a different terminal
+```bash
+cd go-api
+go run main.go
+```
+
+In a third terminal test the apis
+```bash
+curl localhost:3000/v1/resources
+curl localhost:4001/resources
+```
+
+You should see this
+```bash
+☁  k8s-hyperledger-fabric-2.2 [master] ⚡  curl localhost:3000/v1/resources
+[{"id":"1","name":"Iron Ore","resource_type_id":"1","active":true},{"id":"2","name":"Copper Ore","resource_type_id":"1","active":true}]%                                                                                           ☁  k8s-hyperledger-fabric-2.2 [master] ⚡  curl localhost:4001/resources
+[{"id":"1","name":"Iron Ore","resource_type_id":"1","active":true},{"id":"2","name":"Copper Ore","resource_type_id":"1","active":true}]%                                                                                           ☁  k8s-hyperledger-fabric-2.2 [master] ⚡  
+```
+
+Lets run the front end and test it
+```bash
+cd frontend
+npm run serve
+```
+
+Everything should work!
+
 ## Kubernetes - Minikube (Local)
+
+Okay, now that we've successfully ran the network locally, let's do this on a local kubernetes installation.
 
 ## Commands
 Clean all docker things
@@ -147,3 +184,11 @@ docker rmi $(docker images -q) --force
 - [Having docker registry issues?](https://github.com/moby/moby/issues/22635)
 - There is an issue with CA 1.4.9... use 1.4.7
 - [Really good Golang tutorial](https://chainhero.io/2018/06/tutorial-build-blockchain-app-v1-1-0/)
+- Issue with watchers
+```bash
+Error: ENOSPC: System limit for number of file watchers reached, watch '/home/nick/Projects/k8s-hyperledger-fabric-2.2/frontend/public/index.html'
+```
+Run this command
+```bash
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```

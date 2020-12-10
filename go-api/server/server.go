@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/handlers"
-	"github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/router"
+	"k8s-hyperledger-fabric-2.2/go-api/router"
 )
 
 type Server struct {

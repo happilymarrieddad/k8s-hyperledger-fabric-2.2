@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/models"
+	"k8s-hyperledger-fabric-2.2/go-api/models"
 
-	UsersModel "github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/models/v1/users"
+	UsersModel "k8s-hyperledger-fabric-2.2/go-api/models/v1/users"
 )
 
 func Store() http.HandlerFunc {

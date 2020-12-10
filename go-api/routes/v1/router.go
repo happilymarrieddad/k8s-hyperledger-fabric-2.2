@@ -3,11 +3,11 @@ package v1
 import (
 	"net/http"
 
-	"github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/models"
-	RawResourcesHandler "github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/routes/v1/rawresources"
-	RawResourceTypesHandler "github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/routes/v1/rawresourcetypes"
-	UsersHandler "github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/routes/v1/users"
-	"github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend/hyperledger"
+	"k8s-hyperledger-fabric-2.2/go-api/hyperledger"
+	"k8s-hyperledger-fabric-2.2/go-api/models"
+	ResourcesHandler "k8s-hyperledger-fabric-2.2/go-api/routes/v1/resources"
+	ResourceTypesHandler "k8s-hyperledger-fabric-2.2/go-api/routes/v1/resourcetypes"
+	UsersHandler "k8s-hyperledger-fabric-2.2/go-api/routes/v1/users"
 )
 
 func Middleware() func(http.Handler) http.Handler {
@@ -29,19 +29,19 @@ func GetRoutes(clients *hyperledger.Clients) map[string]models.SubRoutePackage {
 				models.Route{Name: "UsersReplace", Method: "PUT", Pattern: "/users/{id}", HandlerFunc: UsersHandler.Update()},
 				models.Route{Name: "UsersUpdate", Method: "PATCH", Pattern: "/users/{id}", HandlerFunc: UsersHandler.Update()},
 				models.Route{Name: "UsersDestroy", Method: "DELETE", Pattern: "/users/{id}", HandlerFunc: UsersHandler.Destroy()},
-				// RawResourceTypes
-				models.Route{Name: "RawResourceTypesIndex", Method: "GET", Pattern: "/rawresourcetypes", HandlerFunc: RawResourceTypesHandler.Index()},
-				models.Route{Name: "RawResourceTypesStore", Method: "POST", Pattern: "/rawresourcetypes", HandlerFunc: RawResourceTypesHandler.Store()},
-				models.Route{Name: "RawResourceTypesReplace", Method: "PUT", Pattern: "/rawresourcetypes/{id}", HandlerFunc: RawResourceTypesHandler.Update()},
-				models.Route{Name: "RawResourceTypesUpdate", Method: "PATCH", Pattern: "/rawresourcetypes/{id}", HandlerFunc: RawResourceTypesHandler.Update()},
-				models.Route{Name: "RawResourceTypesDestroy", Method: "DELETE", Pattern: "/rawresourcetypes/{id}", HandlerFunc: RawResourceTypesHandler.Destroy()},
-				// RawResources
-				models.Route{Name: "RawResourcesIndex", Method: "GET", Pattern: "/rawresources", HandlerFunc: RawResourcesHandler.Index(clients)},
-				models.Route{Name: "RawResourcesStore", Method: "POST", Pattern: "/rawresources", HandlerFunc: RawResourcesHandler.Store(clients)},
-				models.Route{Name: "RawResourcesReplace", Method: "PUT", Pattern: "/rawresources/{id}", HandlerFunc: RawResourcesHandler.Update(clients)},
-				models.Route{Name: "RawResourcesUpdate", Method: "PATCH", Pattern: "/rawresources/{id}", HandlerFunc: RawResourcesHandler.Update(clients)},
-				models.Route{Name: "RawResourcesDestroy", Method: "DELETE", Pattern: "/rawresources/{id}", HandlerFunc: RawResourcesHandler.Destroy(clients)},
-				models.Route{Name: "RawResourcesShow", Method: "GET", Pattern: "/rawresources/{id}", HandlerFunc: RawResourcesHandler.Show(clients)},
+				// ResourceTypes
+				models.Route{Name: "ResourceTypesIndex", Method: "GET", Pattern: "/resourcetypes", HandlerFunc: ResourceTypesHandler.Index()},
+				models.Route{Name: "ResourceTypesStore", Method: "POST", Pattern: "/resourcetypes", HandlerFunc: ResourceTypesHandler.Store()},
+				models.Route{Name: "ResourceTypesReplace", Method: "PUT", Pattern: "/resourcetypes/{id}", HandlerFunc: ResourceTypesHandler.Update()},
+				models.Route{Name: "ResourceTypesUpdate", Method: "PATCH", Pattern: "/resourcetypes/{id}", HandlerFunc: ResourceTypesHandler.Update()},
+				models.Route{Name: "ResourceTypesDestroy", Method: "DELETE", Pattern: "/resourcetypes/{id}", HandlerFunc: ResourceTypesHandler.Destroy()},
+				// Resources
+				models.Route{Name: "ResourcesIndex", Method: "GET", Pattern: "/resources", HandlerFunc: ResourcesHandler.Index(clients)},
+				models.Route{Name: "ResourcesStore", Method: "POST", Pattern: "/resources", HandlerFunc: ResourcesHandler.Store(clients)},
+				models.Route{Name: "ResourcesReplace", Method: "PUT", Pattern: "/resources/{id}", HandlerFunc: ResourcesHandler.Update(clients)},
+				models.Route{Name: "ResourcesUpdate", Method: "PATCH", Pattern: "/resources/{id}", HandlerFunc: ResourcesHandler.Update(clients)},
+				models.Route{Name: "ResourcesDestroy", Method: "DELETE", Pattern: "/resources/{id}", HandlerFunc: ResourcesHandler.Destroy(clients)},
+				models.Route{Name: "ResourcesShow", Method: "GET", Pattern: "/resources/{id}", HandlerFunc: ResourcesHandler.Show(clients)},
 			},
 		},
 	}

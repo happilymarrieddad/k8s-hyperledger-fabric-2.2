@@ -1,6 +1,6 @@
-module github.com/happilymarrieddad/hyperledger-fabric-kubernetes/s5-connecting-everything/backend
+module k8s-hyperledger-fabric-2.2/go-api
 
-go 1.12
+go 1.15
 
 require (
 	github.com/davecgh/go-spew v1.1.1
