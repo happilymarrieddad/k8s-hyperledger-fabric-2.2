@@ -4,6 +4,8 @@ K8s Hyperledger 2.2 Network
 ## Getting Started
 - [My bash](https://github.com/ohmyzsh/ohmyzsh)
 - [Install Hyperledger Deps](https://hyperledger-fabric.readthedocs.io/en/release-2.2/install.html)
+- [Create aws account](aws.amazon.com)
+- [Create docker hub account](https://hub.docker.com/)
 - curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.9
 
 You want to copy over all the bin files into a bin directory where you can easily access them. I usually just like to make a bin folder in my home directory and set the path to include that
