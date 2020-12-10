@@ -23,8 +23,8 @@ client:
     # requiring a key store. PKCS#11 based implementations does not.
     cryptoStore:
       # Specific to the underlying KeyValueStore that backs the crypto key store.
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/org1/peers/peer0-org1/msp
-    
+      path: /tmp/msp
+
   BCCSP:
     security:
       enabled: true
@@ -118,7 +118,6 @@ peers:
       allow-insecure: false
     
   peer0-org1:
-    url: https://peer0-org1:7051
     grpcOptions:
       ssl-target-name-override: peer0-org1
       grpc.http2.keepalive_time: 15
@@ -127,7 +126,6 @@ peers:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/org1/msp/tlscacerts/org1-ca-7054.pem
 
   peer1-org1:
-    url: https://peer0-org1:8051
     grpcOptions:
       ssl-target-name-override: peer1-org1
       grpc.http2.keepalive_time: 15
@@ -137,7 +135,6 @@ peers:
 
     
   peer0-org2:
-    url: https://peer0-org2:9051
     grpcOptions:
       ssl-target-name-override: peer0-org2
       grpc.http2.keepalive_time: 15
@@ -146,7 +143,6 @@ peers:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/org2/msp/tlscacerts/org2-ca-7054.pem
 
   peer1-org2:
-    url: https://peer1-org2:10051
     grpcOptions:
       ssl-target-name-override: peer1-org2
       grpc.http2.keepalive_time: 15
@@ -154,42 +150,42 @@ peers:
     tlsCACerts:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/org2/msp/tlscacerts/org2-ca-7054.pem
 
-# entityMatchers:
+entityMatchers:
 
-#   peer:
-#     - pattern: (\w*)peer0-org1-service(\w*)
-#       urlSubstitutionExp: localhost:7051
-#       sslTargetOverrideUrlSubstitutionExp: peer0-org1-service
-#       mappedHost: peer0-org1-service
+  peer:
+    - pattern: (\w*)peer0-org1(\w*)
+      urlSubstitutionExp: localhost:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-org1
+      mappedHost: peer0-org1
 
-#     - pattern: (\w*)peer1-org1-service(\w*)
-#       urlSubstitutionExp: localhost:8051
-#       sslTargetOverrideUrlSubstitutionExp: peer1-org1-service
-#       mappedHost: peer1-org1-service
+    - pattern: (\w*)peer1-org1(\w*)
+      urlSubstitutionExp: localhost:8051
+      sslTargetOverrideUrlSubstitutionExp: peer1-org1
+      mappedHost: peer1-org1
 
-#     - pattern: (\w*)peer0-org2-service(\w*)
-#       urlSubstitutionExp: localhost:9051
-#       sslTargetOverrideUrlSubstitutionExp: peer0-org2-service
-#       mappedHost: peer0-org2-service
+    - pattern: (\w*)peer0-org2(\w*)
+      urlSubstitutionExp: localhost:9051
+      sslTargetOverrideUrlSubstitutionExp: peer0-org2
+      mappedHost: peer0-org2
 
-#     - pattern: (\w*)peer1-org2-service(\w*)
-#       urlSubstitutionExp: localhost:10051
-#       sslTargetOverrideUrlSubstitutionExp: peer1-org2-service
-#       mappedHost: peer1-org2-service
+    - pattern: (\w*)peer1-org2(\w*)
+      urlSubstitutionExp: localhost:10051
+      sslTargetOverrideUrlSubstitutionExp: peer1-org2
+      mappedHost: peer1-org2
 
-#   orderer:
-#     - pattern: (\w*)orderer0-service(\w*)
-#       urlSubstitutionExp: localhost:7050
-#       sslTargetOverrideUrlSubstitutionExp: orderer0-service
-#       mappedHost: orderer0-service
+  orderer:
+    - pattern: (\w*)orderer0(\w*)
+      urlSubstitutionExp: localhost:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer0
+      mappedHost: orderer0
 
-#     - pattern: (\w*)orderer1-service(\w*)
-#       urlSubstitutionExp: localhost:8050
-#       sslTargetOverrideUrlSubstitutionExp: orderer1-service
-#       mappedHost: orderer1-service
+    - pattern: (\w*)orderer1(\w*)
+      urlSubstitutionExp: localhost:8050
+      sslTargetOverrideUrlSubstitutionExp: orderer1
+      mappedHost: orderer1
       
-#     - pattern: (\w*)orderer2-service(\w*)
-#       urlSubstitutionExp: localhost:9050
-#       sslTargetOverrideUrlSubstitutionExp: orderer2-service
-#       mappedHost: orderer2-service
+    - pattern: (\w*)orderer2(\w*)
+      urlSubstitutionExp: localhost:9050
+      sslTargetOverrideUrlSubstitutionExp: orderer2
+      mappedHost: orderer2
 

@@ -120,6 +120,7 @@ docker exec -it cli-peer0-org2 bash -c 'peer lifecycle chaincode approveformyorg
 
 docker exec -it cli-peer0-org1 bash -c 'peer lifecycle chaincode commit -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem --channelID mainchannel --name resources --version 1.0 --sequence 1'
 
+sleep 5
 
 docker exec -it cli-peer0-org1 bash -c 'peer chaincode invoke -C mainchannel -n resources -c '\''{"Args":["Create","1","Iron Ore","1"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
 docker exec -it cli-peer0-org1 bash -c 'peer chaincode invoke -C mainchannel -n resources -c '\''{"Args":["Create","2","Copper Ore","1"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
@@ -145,3 +146,4 @@ docker rmi $(docker images -q) --force
 
 - [Having docker registry issues?](https://github.com/moby/moby/issues/22635)
 - There is an issue with CA 1.4.9... use 1.4.7
+- [Really good Golang tutorial](https://chainhero.io/2018/06/tutorial-build-blockchain-app-v1-1-0/)

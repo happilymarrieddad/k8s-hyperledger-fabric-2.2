@@ -93,7 +93,7 @@ func (c *Clients) Query(org string, channel string, chaincode string, fcn string
 			Fcn:         fcn,
 			Args:        args,
 		},
-		sdkchannel.WithTargetEndpoints("peer0-"+org+"-service"),
+		sdkchannel.WithTargetEndpoints("peer0-"+org),
 		sdkchannel.WithRetry(retry.DefaultChannelOpts),
 	)
 
@@ -118,7 +118,7 @@ func (c *Clients) Invoke(org string, channel string, chaincode string, fcn strin
 			Args:         args,
 			TransientMap: transientDataMap,
 		},
-		sdkchannel.WithTargetEndpoints("peer0-"+org+"-service"),
+		sdkchannel.WithTargetEndpoints("peer0-"+org),
 		sdkchannel.WithRetry(retry.DefaultChannelOpts),
 	)
 
