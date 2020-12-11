@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example2
+  labels: {
+    component: example2
+  }
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: example2
+  template:
+    metadata:
+      labels:
+        component: example2
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: example2
+          image: nginx:stable
+          command: ["sleep"]
+          args: ["infinity"]
+          volumeMounts:
+            - mountPath: /host
+              name: my-pv-storage
