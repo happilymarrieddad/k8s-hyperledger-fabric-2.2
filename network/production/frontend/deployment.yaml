@@ -17,4 +17,4 @@ spec:
     spec:
       containers:
         - name: web
-          image: happilymarrieddadudemy/udemy-web-app:2cf03a7362c76a72b630b8ae1b06545f49a368db
+          image: happilymarrieddadudemy/udemy-web-app:e091dc18c45b65a73e937ccfe00dceb00deba617

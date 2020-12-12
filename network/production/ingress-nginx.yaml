@@ -24,7 +24,7 @@ spec:
           - path: /
             backend:
               serviceName: api-service
-              servicePort: 3000
+              servicePort: 4000
     - host: www.udemy-hyperledger.com
       http:
         paths:

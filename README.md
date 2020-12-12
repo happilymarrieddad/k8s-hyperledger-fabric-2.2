@@ -379,7 +379,7 @@ Time to create the cluster
 ssh-keygen
 (No passphrase)
 
-kops create cluster hyperledger.k8s.local --zones us-west-1b,us-west-1c --node-count 3 --master-zones us-west-1b,us-west-1c --master-count 3 --authorization AlwaysAllow --yes
+kops create cluster hyperledger.k8s.local --zones us-west-1b,us-west-1c --node-count 5 --master-zones us-west-1b,us-west-1c --master-count 3 --authorization AlwaysAllow --yes
 ```
 
 To delete the cluster

@@ -16,12 +16,12 @@ spec:
         component: api
     spec:
       volumes:
-        - name: host-mount
+        - name: my-pv-storage
           persistentVolumeClaim:
-            claimName: efs-burst-persistent-volume-claim
+            claimName: my-pv-claim
       containers:
         - name: api
-          image: happilymarrieddadudemy/udemy-node-api:d906a799fc57f23c22e95d19862514bf49ba18cf
+          image: happilymarrieddadudemy/udemy-node-api:e091dc18c45b65a73e937ccfe00dceb00deba617
           env:
               - name: ENV
                 value: prod
@@ -29,8 +29,8 @@ spec:
           #     value: /files/config.yaml
           volumeMounts:
             - mountPath: /files
-              name: host-mount
+              name: my-pv-storage
               subPath: files
             - mountPath: /tmp/crypto
-              name: host-mount
-              subPath: files/scripts/crypto-config
+              name: my-pv-storage
+              subPath: files/crypto-config
