@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderers-ca-client
+  labels: {
+    component: orderers-ca-client,
+    type: ca
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: orderers-ca-client
+      type: ca
+  template:
+    metadata:
+      labels:
+        component: orderers-ca-client
+        type: ca
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: orderers-ca-client
+          image: hyperledger/fabric-ca:1.4.7
+          command: ["bash"]
+          args: ["/scripts/start-orderer-client.sh"]
+          env:
+            - name: FABRIC_CA_SERVER_HOME
+              value: /etc/hyperledger/fabric-ca-client
+            - name: CA_SCHEME
+              value: https
+            - name: CA_URL
+              value: "orderers-ca-service:7054"
+            - name: CA_USERNAME
+              value: admin
+            - name: CA_PASSWORD
+              value: adminpw
+            - name: CA_CERT_PATH
+              value: /etc/hyperledger/fabric-ca-server/tls-cert.pem
+          volumeMounts:
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+            - mountPath: /state
+              name: my-pv-storage
+              subPath: state
+            - mountPath: /files
+              name: my-pv-storage
+              subPath: files
+            - mountPath: /etc/hyperledger/fabric-ca-server
+              name: my-pv-storage
+              subPath: state/orderers-ca
+            - mountPath: /etc/hyperledger/fabric-ca-client
+              name: my-pv-storage
+              subPath: state/orderers-ca-client
+            - mountPath: /etc/hyperledger/fabric-ca/crypto-config
+              name: my-pv-storage
+              subPath: files/crypto-config

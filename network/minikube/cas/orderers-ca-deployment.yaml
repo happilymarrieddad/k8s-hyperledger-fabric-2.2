@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderers-ca
+  labels: {
+    component: orderers,
+    type: ca
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: orderers
+      type: ca
+  template:
+    metadata:
+      labels:
+        component: orderers
+        type: ca
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: orderers-ca
+          image: hyperledger/fabric-ca:1.4.7
+          command: ["sh"]
+          args: ["/scripts/start-root-ca.sh"]
+          ports:
+            - containerPort: 7054
+          env:
+            - name: FABRIC_CA_HOME
+              value: /etc/hyperledger/fabric-ca-server
+            - name: USERNAME
+              value: admin
+            - name: PASSWORD
+              value: adminpw
+            - name: CSR_HOSTS
+              value: orderers-ca
+          volumeMounts:
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+            - mountPath: /etc/hyperledger/fabric-ca-server
+              name: my-pv-storage
+              subPath: state/orderers-ca
