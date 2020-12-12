@@ -12,6 +12,7 @@ COPY package*.json ./
 COPY . .
 
 # If you are building your code for production
+RUN rm -rf node_modules
 RUN npm ci --only=production
 
 EXPOSE 4000
