@@ -19,11 +19,16 @@ spec:
         - name: my-pv-storage
           persistentVolumeClaim:
             claimName: my-pv-claim
+        - name: host
+          hostPath:
+            path: /var/run
       containers:
         - name: example1
-          image: nginx:stable
+          image: ubuntu:latest
           command: ["sleep"]
           args: ["infinity"]
           volumeMounts:
             - mountPath: /host
               name: my-pv-storage
+            - mountPath: /var/run
+              name: host

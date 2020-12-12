@@ -19,6 +19,9 @@ spec:
         - name: my-pv-storage
           persistentVolumeClaim:
             claimName: my-pv-claim
+        - name: host
+          hostPath:
+            path: /var/run
       containers:
         - name: example2
           image: nginx:stable
@@ -27,3 +30,5 @@ spec:
           volumeMounts:
             - mountPath: /host
               name: my-pv-storage
+            - mountPath: /var/run
+              name: host
