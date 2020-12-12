@@ -8,12 +8,11 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
-
 # Bundle app source
 COPY . .
+
+# If you are building your code for production
+RUN npm ci --only=production
 
 EXPOSE 4000
 CMD [ "node", "index.js" ]

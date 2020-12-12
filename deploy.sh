@@ -25,11 +25,11 @@ DOCKER_USERNAME=${1-happilymarrieddadudemy}
 # sleep 5
 
 ## Push up and set Node API
-docker build -t ${DOCKER_USERNAME}/udemy-node-api:${VERSION} \
-    -f ./node-api/Dockerfile \
-    ./node-api
+# docker build -t ${DOCKER_USERNAME}/udemy-node-api:${VERSION} \
+#     -f ./node-api/Dockerfile \
+#     ./node-api
 
-docker push ${DOCKER_USERNAME}/udemy-node-api:${VERSION}
+# docker push ${DOCKER_USERNAME}/udemy-node-api:${VERSION}
 
 # docker build -t ${DOCKER_USERNAME}/udemy-node-api:latest \
 #     -f ./node-api/Dockerfile \
