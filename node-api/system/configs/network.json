@@ -34,7 +34,7 @@
     },
     "orderers": {
         "orderer0": {
-            "url": "grpcs://orderer0:7050",
+            "url": "grpcs://orderer0-service:7050",
             "grpcOptions": {
                 "ssl-target-name-override": "orderer0"
             },
@@ -45,7 +45,7 @@
     },
 	"peers": {
 		"peer0-org1": {
-			"url": "grpcs://peer0-org1:7051",
+			"url": "grpcs://peer0-org1-service:7051",
 			"tlsCACerts": {
 				"path": "/tmp/crypto/peerOrganizations/org1/peers/peer0-org1/tls/ca.crt"
 			},

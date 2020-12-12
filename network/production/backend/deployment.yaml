@@ -21,14 +21,16 @@ spec:
             claimName: efs-burst-persistent-volume-claim
       containers:
         - name: api
-          image: happilymarrieddadudemy/udemy-kubernetes-back-end:latest
+          image: happilymarrieddadudemy/udemy-node-api:897450a80607afc3b575b24b5a8ddbbaef0d4e58
           env:
-            - name: HYPERLEDGER_CONFIG_PATH
-              value: /files/config.yaml
+              - name: ENV
+                value: prod
+          #   - name: HYPERLEDGER_CONFIG_PATH
+          #     value: /files/config.yaml
           volumeMounts:
             - mountPath: /files
               name: host-mount
               subPath: files
-            - mountPath: /crypto-config
+            - mountPath: /tmp/crypto
               name: host-mount
               subPath: files/scripts/crypto-config
