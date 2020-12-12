@@ -21,7 +21,7 @@ spec:
             claimName: efs-burst-persistent-volume-claim
       containers:
         - name: api
-          image: happilymarrieddadudemy/udemy-node-api:897450a80607afc3b575b24b5a8ddbbaef0d4e58
+          image: happilymarrieddadudemy/udemy-node-api:8e71de08c3e12143db009dd22bb2feb463099ec5
           env:
               - name: ENV
                 value: prod
