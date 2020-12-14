@@ -22,7 +22,7 @@ func Store(clients *hyperledger.Clients, name string, typeID string) (resource *
 		return
 	}
 
-	if _, err = clients.Invoke("org1", "mainchannel", "resources", "store", [][]byte{
+	if _, err = clients.Invoke("ibm", "mainchannel", "resources", "store", [][]byte{
 		packet,
 	}); err != nil {
 		return

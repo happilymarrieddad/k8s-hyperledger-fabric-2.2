@@ -7,7 +7,7 @@
                 "orderer0"
             ],
 			"peers": [
-				"peer0-org1"
+				"peer0-ibm"
             ],
 			"connection": {
 				"timeout": {
@@ -21,14 +21,14 @@
 		}
 	},
 	"organizations": {
-		"org1": {
-			"mspid": "org1",
+		"ibm": {
+			"mspid": "ibm",
 			"adminPrivateKey": {
-				"path": "/tmp/crypto/peerOrganizations/org1/users/Admin@org1/msp/keystore/pvt-cert.pem"
+				"path": "/tmp/crypto/peerOrganizations/ibm/users/Admin@ibm/msp/keystore/pvt-cert.pem"
 			},
-			"peers": ["peer0-org1"],
+			"peers": ["peer0-ibm"],
 			"signedCert": {
-				"path": "/tmp/crypto/peerOrganizations/org1/users/Admin@org1/msp/signcerts/Admin@org1-cert.pem"
+				"path": "/tmp/crypto/peerOrganizations/ibm/users/Admin@ibm/msp/signcerts/Admin@ibm-cert.pem"
 			}
 		}
     },
@@ -44,13 +44,13 @@
         }
     },
 	"peers": {
-		"peer0-org1": {
-			"url": "grpcs://peer0-org1-service:7051",
+		"peer0-ibm": {
+			"url": "grpcs://peer0-ibm-service:7051",
 			"tlsCACerts": {
-				"path": "/tmp/crypto/peerOrganizations/org1/peers/peer0-org1/tls/ca.crt"
+				"path": "/tmp/crypto/peerOrganizations/ibm/peers/peer0-ibm/tls/ca.crt"
 			},
             "grpcOptions": {
-              "ssl-target-name-override": "peer0-org1"
+              "ssl-target-name-override": "peer0-ibm"
             }
 		}
 	}

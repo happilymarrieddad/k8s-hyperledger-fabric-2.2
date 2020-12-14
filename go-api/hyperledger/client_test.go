@@ -14,7 +14,7 @@ func Test_ConnectionTest_Success(t *testing.T) {
 
 	_, err := clients.AddClient(
 		"Admin",
-		"org1",
+		"ibm",
 		"mainchannel",
 	)
 	if err != nil {
@@ -22,7 +22,7 @@ func Test_ConnectionTest_Success(t *testing.T) {
 		return
 	}
 
-	res, err := clients.Query("org1", "mainchannel", "resources", "index", [][]byte{
+	res, err := clients.Query("ibm", "mainchannel", "resources", "index", [][]byte{
 		[]byte(""),
 		[]byte(""),
 	})

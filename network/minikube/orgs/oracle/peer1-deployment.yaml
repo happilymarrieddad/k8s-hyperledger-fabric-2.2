@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer1-oracle-deployment
+  labels: {
+    component: peer1,
+    type: peer,
+    org: oracle
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer1
+      type: peer
+      org: oracle
+  template:
+    metadata:
+      labels:
+        component: peer1
+        type: peer
+        org: oracle
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+        - name: host
+          hostPath:
+            path: /var/run
+      containers:
+        - name: peer1-oracle
+          image: hyperledger/fabric-peer:2.2.1
+          workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+          command: ["peer"]
+          args: ["node","start"]
+          env:
+            - name: CORE_VM_ENDPOINT
+              value: unix:///var/run/docker.sock
+            - name: CORE_PEER_ADDRESSAUTODETECT
+              value: "true"
+            - name: CORE_VM_DOCKER_ATTACHOUT
+              value: "true"
+            - name: CORE_PEER_ID
+              value: peer1-oracle-service
+            - name: CORE_PEER_LISTENADDRESS
+              value: 0.0.0.0:7051
+            - name: CORE_PEER_GOSSIP_BOOTSTRAP
+              value: peer0-oracle-service:7051
+            - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+              value: peer1-oracle-service:7051
+            - name: CORE_PEER_GOSSIP_ENDPOINT
+              value: peer1-oracle-service:7051
+            - name: CORE_PEER_CHAINCODELISTENADDRESS
+              value: 0.0.0.0:7052
+            - name: CORE_PEER_LOCALMSPID
+              value: oracle
+            - name: CORE_PEER_ENDORSER_ENABLED
+              value: "true"
+            # - name: CORE_PEER_GOSSIP_USELEADERELECTION
+            #   value: "true"
+            - name: CORE_PEER_TLS_ENABLED
+              value: "true"
+            - name: CORE_PEER_TLS_CERT_FILE
+              value: /etc/hyperledger/fabric/tls/server.crt
+            - name: CORE_PEER_TLS_KEY_FILE
+              value: /etc/hyperledger/fabric/tls/server.key
+            - name: CORE_PEER_TLS_ROOTCERT_FILE
+              value: /etc/hyperledger/fabric/tls/ca.crt
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS
+              value: peer1-oracle-couchdb:5984
+            - name: CORE_LEDGER_STATE_STATEDATABASE
+              value: CouchDB
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME
+              value: nick
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
+              value: "1234"
+          volumeMounts:
+            - mountPath: /var/run
+              name: host
+            - mountPath: /etc/hyperledger/fabric/msp
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/oracle/peers/peer1-oracle/msp
+            - mountPath: /etc/hyperledger/fabric/tls
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/oracle/peers/peer1-oracle/tls
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+            - mountPath: /etc/hyperledger/orderers
+              name: my-pv-storage
+              subPath: files/crypto-config/ordererOrganizations/orderer

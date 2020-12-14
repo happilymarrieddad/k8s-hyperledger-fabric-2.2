@@ -4,7 +4,7 @@ version: 2.2.1
 
 client:
 
-  organization: org1
+  organization: ibm
 
   logging:
     level: info
@@ -42,7 +42,7 @@ channels:
   mainchannel:
 
     peers:
-      peer0-org1:
+      peer0-ibm:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -59,18 +59,18 @@ channels:
           backoffFactor: 2.0
 
 organizations:
-  org1:
-    mspid: org1
-    cryptopath: peerOrganizations/org1/users/Admin@org1/msp
+  ibm:
+    mspid: ibm
+    cryptopath: peerOrganizations/ibm/users/Admin@ibm/msp
     peers:
-      - peer0-org1
-      - peer1-org1
-  org2:
-    mspid: org2
-    cryptopath: peerOrganizations/org2/users/Admin@org2/msp
+      - peer0-ibm
+      - peer1-ibm
+  oracle:
+    mspid: oracle
+    cryptopath: peerOrganizations/oracle/users/Admin@oracle/msp
     peers:
-      - peer0-org2
-      - peer1-org2
+      - peer0-oracle
+      - peer1-oracle
 
 orderers:
   _default:
@@ -117,61 +117,61 @@ peers:
       fail-fast: false
       allow-insecure: false
     
-  peer0-org1:
+  peer0-ibm:
     grpcOptions:
-      ssl-target-name-override: peer0-org1
+      ssl-target-name-override: peer0-ibm
       grpc.http2.keepalive_time: 15
     
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/org1/msp/tlscacerts/org1-ca-7054.pem
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
 
-  peer1-org1:
+  peer1-ibm:
     grpcOptions:
-      ssl-target-name-override: peer1-org1
+      ssl-target-name-override: peer1-ibm
       grpc.http2.keepalive_time: 15
     
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/org1/msp/tlscacerts/org1-ca-7054.pem
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
 
     
-  peer0-org2:
+  peer0-oracle:
     grpcOptions:
-      ssl-target-name-override: peer0-org2
+      ssl-target-name-override: peer0-oracle
       grpc.http2.keepalive_time: 15
     
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/org2/msp/tlscacerts/org2-ca-7054.pem
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/oracle/msp/tlscacerts/oracle-ca-7054.pem
 
-  peer1-org2:
+  peer1-oracle:
     grpcOptions:
-      ssl-target-name-override: peer1-org2
+      ssl-target-name-override: peer1-oracle
       grpc.http2.keepalive_time: 15
     
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/org2/msp/tlscacerts/org2-ca-7054.pem
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/oracle/msp/tlscacerts/oracle-ca-7054.pem
 
 entityMatchers:
 
   peer:
-    - pattern: (\w*)peer0-org1(\w*)
+    - pattern: (\w*)peer0-ibm(\w*)
       urlSubstitutionExp: localhost:7051
-      sslTargetOverrideUrlSubstitutionExp: peer0-org1
-      mappedHost: peer0-org1
+      sslTargetOverrideUrlSubstitutionExp: peer0-ibm
+      mappedHost: peer0-ibm
 
-    - pattern: (\w*)peer1-org1(\w*)
+    - pattern: (\w*)peer1-ibm(\w*)
       urlSubstitutionExp: localhost:8051
-      sslTargetOverrideUrlSubstitutionExp: peer1-org1
-      mappedHost: peer1-org1
+      sslTargetOverrideUrlSubstitutionExp: peer1-ibm
+      mappedHost: peer1-ibm
 
-    - pattern: (\w*)peer0-org2(\w*)
+    - pattern: (\w*)peer0-oracle(\w*)
       urlSubstitutionExp: localhost:9051
-      sslTargetOverrideUrlSubstitutionExp: peer0-org2
-      mappedHost: peer0-org2
+      sslTargetOverrideUrlSubstitutionExp: peer0-oracle
+      mappedHost: peer0-oracle
 
-    - pattern: (\w*)peer1-org2(\w*)
+    - pattern: (\w*)peer1-oracle(\w*)
       urlSubstitutionExp: localhost:10051
-      sslTargetOverrideUrlSubstitutionExp: peer1-org2
-      mappedHost: peer1-org2
+      sslTargetOverrideUrlSubstitutionExp: peer1-oracle
+      mappedHost: peer1-oracle
 
   orderer:
     - pattern: (\w*)orderer0(\w*)

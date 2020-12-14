@@ -55,6 +55,7 @@ export default {
             let [res, err] = await this.$store.dispatch('resources/updateOne', {
                 id: self.$route.params.id,
                 name: self.name,
+                resource_type_id: self.resource_type_id,
             });
             if (err) {
                 alert(err);

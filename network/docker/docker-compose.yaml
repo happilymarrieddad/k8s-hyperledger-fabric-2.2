@@ -100,21 +100,21 @@ services:
       - hyperledger
 
   # Org1 Peers
-  peer0-org1-couchdb:
+  peer0-ibm-couchdb:
     image: couchdb:2.3.1
-    container_name: peer0-org1-couchdb
+    container_name: peer0-ibm-couchdb
     environment:
       - COUCHDB_USER=nick
       - COUCHDB_PASSWORD=1234
     volumes:
-      - ../../state/peer0-org1-couchdb:/opt/couchdb/data
+      - ../../state/peer0-ibm-couchdb:/opt/couchdb/data
     ports:
       - 5984:5984
     networks:
       - hyperledger
-  peer0-org1:
+  peer0-ibm:
     image: hyperledger/fabric-peer:2.2.1
-    container_name: peer0-org1
+    container_name: peer0-ibm
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     environment:
@@ -122,27 +122,27 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_PEER_ADDRESSAUTODETECT=true
       - CORE_VM_DOCKER_ATTACHOUT=true
-      - CORE_PEER_ID=peer0-org1
+      - CORE_PEER_ID=peer0-ibm
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-org1:8051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-org1:7051
-      - CORE_PEER_GOSSIP_ENDPOINT=peer0-org1:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-ibm:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-ibm:7051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-ibm:7051
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_LOCALMSPID=org1
+      - CORE_PEER_LOCALMSPID=ibm
       - CORE_PEER_ENDORSER_ENABLED=true
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-org1-couchdb:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-ibm-couchdb:5984
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
     volumes:
       - /var/run/:/host/var/run
-      - ../../crypto-config/peerOrganizations/org1/peers/peer0-org1/msp:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/org1/peers/peer0-org1/tls:/etc/hyperledger/fabric/tls
-      - ../../state/peer0-org1:/var/hyperledger/production
+      - ../../crypto-config/peerOrganizations/ibm/peers/peer0-ibm/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/ibm/peers/peer0-ibm/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer0-ibm:/var/hyperledger/production
       - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
       - ../../scripts/:/scripts/
     ports:
@@ -153,21 +153,21 @@ services:
       - orderer2
     networks:
       - hyperledger
-  peer1-org1-couchdb:
+  peer1-ibm-couchdb:
     image: couchdb:2.3.1
-    container_name: peer1-org1-couchdb
+    container_name: peer1-ibm-couchdb
     environment:
       - COUCHDB_USER=nick
       - COUCHDB_PASSWORD=1234
     volumes:
-      - ../../state/peer1-org1-couchdb:/opt/couchdb/data
+      - ../../state/peer1-ibm-couchdb:/opt/couchdb/data
     ports:
       - 6984:5984
     networks:
       - hyperledger
-  peer1-org1:
+  peer1-ibm:
     image: hyperledger/fabric-peer:2.2.1
-    container_name: peer1-org1
+    container_name: peer1-ibm
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     environment:
@@ -175,27 +175,27 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_PEER_ADDRESSAUTODETECT=true
       - CORE_VM_DOCKER_ATTACHOUT=true
-      - CORE_PEER_ID=peer1-org1
+      - CORE_PEER_ID=peer1-ibm
       - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-org1:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-org1:8051
-      - CORE_PEER_GOSSIP_ENDPOINT=peer1-org1:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-ibm:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-ibm:8051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1-ibm:8051
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
-      - CORE_PEER_LOCALMSPID=org1
+      - CORE_PEER_LOCALMSPID=ibm
       - CORE_PEER_ENDORSER_ENABLED=true
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-org1-couchdb:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-ibm-couchdb:5984
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
     volumes:
       - /var/run/:/host/var/run
-      - ../../crypto-config/peerOrganizations/org1/peers/peer1-org1/msp:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/org1/peers/peer1-org1/tls:/etc/hyperledger/fabric/tls
-      - ../../state/peer1-org1:/var/hyperledger/production
+      - ../../crypto-config/peerOrganizations/ibm/peers/peer1-ibm/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/ibm/peers/peer1-ibm/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer1-ibm:/var/hyperledger/production
       - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
       - ../../scripts/:/scripts/
     ports:
@@ -208,21 +208,21 @@ services:
       - hyperledger
 
   # Org2 Peers
-  peer0-org2-couchdb:
+  peer0-oracle-couchdb:
     image: couchdb:2.3.1
-    container_name: peer0-org2-couchdb
+    container_name: peer0-oracle-couchdb
     environment:
       - COUCHDB_USER=nick
       - COUCHDB_PASSWORD=1234
     volumes:
-      - ../../state/peer0-org2-couchdb:/opt/couchdb/data
+      - ../../state/peer0-oracle-couchdb:/opt/couchdb/data
     ports:
       - 7984:5984
     networks:
       - hyperledger
-  peer0-org2:
+  peer0-oracle:
     image: hyperledger/fabric-peer:2.2.1
-    container_name: peer0-org2
+    container_name: peer0-oracle
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     environment:
@@ -230,27 +230,27 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_PEER_ADDRESSAUTODETECT=true
       - CORE_VM_DOCKER_ATTACHOUT=true
-      - CORE_PEER_ID=peer0-org2
+      - CORE_PEER_ID=peer0-oracle
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-org2:10051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-org2:9051
-      - CORE_PEER_GOSSIP_ENDPOINT=peer0-org2:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-oracle:10051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-oracle:9051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-oracle:9051
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_LOCALMSPID=org2
+      - CORE_PEER_LOCALMSPID=oracle
       - CORE_PEER_ENDORSER_ENABLED=true
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-org2-couchdb:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-oracle-couchdb:5984
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
     volumes:
       - /var/run/:/host/var/run
-      - ../../crypto-config/peerOrganizations/org2/peers/peer0-org2/msp:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/org2/peers/peer0-org2/tls:/etc/hyperledger/fabric/tls
-      - ../../state/peer0-org2:/var/hyperledger/production
+      - ../../crypto-config/peerOrganizations/oracle/peers/peer0-oracle/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/oracle/peers/peer0-oracle/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer0-oracle:/var/hyperledger/production
       - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
       - ../../scripts/:/scripts/
     ports:
@@ -261,21 +261,21 @@ services:
       - orderer2
     networks:
       - hyperledger
-  peer1-org2-couchdb:
+  peer1-oracle-couchdb:
     image: couchdb:2.3.1
-    container_name: peer1-org2-couchdb
+    container_name: peer1-oracle-couchdb
     environment:
       - COUCHDB_USER=nick
       - COUCHDB_PASSWORD=1234
     volumes:
-      - ../../state/peer1-org2-couchdb:/opt/couchdb/data
+      - ../../state/peer1-oracle-couchdb:/opt/couchdb/data
     ports:
       - 8984:5984
     networks:
       - hyperledger
-  peer1-org2:
+  peer1-oracle:
     image: hyperledger/fabric-peer:2.2.1
-    container_name: peer1-org2
+    container_name: peer1-oracle
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     environment:
@@ -283,27 +283,27 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_PEER_ADDRESSAUTODETECT=true
       - CORE_VM_DOCKER_ATTACHOUT=true
-      - CORE_PEER_ID=peer1-org2
+      - CORE_PEER_ID=peer1-oracle
       - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-org2:9051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-org2:10051
-      - CORE_PEER_GOSSIP_ENDPOINT=peer1-org2:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-oracle:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-oracle:10051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1-oracle:10051
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
-      - CORE_PEER_LOCALMSPID=org2
+      - CORE_PEER_LOCALMSPID=oracle
       - CORE_PEER_ENDORSER_ENABLED=true
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-org2-couchdb:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-oracle-couchdb:5984
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
     volumes:
       - /var/run/:/host/var/run
-      - ../../crypto-config/peerOrganizations/org2/peers/peer1-org2/msp:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/org2/peers/peer1-org2/tls:/etc/hyperledger/fabric/tls
-      - ../../state/peer1-org2:/var/hyperledger/production
+      - ../../crypto-config/peerOrganizations/oracle/peers/peer1-oracle/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/oracle/peers/peer1-oracle/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer1-oracle:/var/hyperledger/production
       - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
       - ../../scripts/:/scripts/
     ports:
@@ -316,17 +316,17 @@ services:
       - hyperledger
 
   # CLIs
-  cli-peer0-org1:
-    container_name: cli-peer0-org1
+  cli-peer0-ibm:
+    container_name: cli-peer0-ibm
     image: hyperledger/fabric-tools:2.2.1
     environment:
       - GOPATH=/opt/gopath
       - CORE_PEER_ADDRESSAUTODETECT=true
 
-      - CORE_PEER_ID=cli-peer0-org1
-      - CORE_PEER_ADDRESS=peer0-org1:7051
-      - CORE_PEER_LOCALMSPID=org1
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@org1/msp
+      - CORE_PEER_ID=cli-peer0-ibm
+      - CORE_PEER_ADDRESS=peer0-ibm:7051
+      - CORE_PEER_LOCALMSPID=ibm
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@ibm/msp
 
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
@@ -338,26 +338,26 @@ services:
       - ../../chaincode/resources:/opt/gopath/src/resources
       - ../../chaincode/resource_types:/opt/gopath/src/resource_types
       - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../../crypto-config/peerOrganizations/org1:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/org1/peers/peer0-org1/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/peerOrganizations/ibm:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/ibm/peers/peer0-ibm/tls:/etc/hyperledger/fabric/tls
       - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
     depends_on:
-      - peer0-org1
+      - peer0-ibm
     command: sleep 500000
     networks:
       - hyperledger
 
-  cli-peer1-org1:
-    container_name: cli-peer1-org1
+  cli-peer1-ibm:
+    container_name: cli-peer1-ibm
     image: hyperledger/fabric-tools:2.2.1
     environment:
       - GOPATH=/opt/gopath
       - CORE_PEER_ADDRESSAUTODETECT=true
 
-      - CORE_PEER_ID=cli-peer1-org1
-      - CORE_PEER_ADDRESS=peer1-org1:8051
-      - CORE_PEER_LOCALMSPID=org1
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@org1/msp
+      - CORE_PEER_ID=cli-peer1-ibm
+      - CORE_PEER_ADDRESS=peer1-ibm:8051
+      - CORE_PEER_LOCALMSPID=ibm
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@ibm/msp
 
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
@@ -369,26 +369,26 @@ services:
       - ../../chaincode/resources:/opt/gopath/src/resources
       - ../../chaincode/resource_types:/opt/gopath/src/resource_types
       - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../../crypto-config/peerOrganizations/org1:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/org1/peers/peer1-org1/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/peerOrganizations/ibm:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/ibm/peers/peer1-ibm/tls:/etc/hyperledger/fabric/tls
       - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
     depends_on:
-      - peer0-org1
+      - peer0-ibm
     command: sleep 500000
     networks:
       - hyperledger
 
-  cli-peer0-org2:
-    container_name: cli-peer0-org2
+  cli-peer0-oracle:
+    container_name: cli-peer0-oracle
     image: hyperledger/fabric-tools:2.2.1
     environment:
       - GOPATH=/opt/gopath
       - CORE_PEER_ADDRESSAUTODETECT=true
 
-      - CORE_PEER_ID=cli-peer0-org2
-      - CORE_PEER_ADDRESS=peer0-org2:9051
-      - CORE_PEER_LOCALMSPID=org2
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@org2/msp
+      - CORE_PEER_ID=cli-peer0-oracle
+      - CORE_PEER_ADDRESS=peer0-oracle:9051
+      - CORE_PEER_LOCALMSPID=oracle
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@oracle/msp
 
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
@@ -400,26 +400,26 @@ services:
       - ../../chaincode/resources:/opt/gopath/src/resources
       - ../../chaincode/resource_types:/opt/gopath/src/resource_types
       - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../../crypto-config/peerOrganizations/org2:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/org2/peers/peer0-org2/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/peerOrganizations/oracle:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/oracle/peers/peer0-oracle/tls:/etc/hyperledger/fabric/tls
       - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
     depends_on:
-      - peer0-org2
+      - peer0-oracle
     command: sleep 500000
     networks:
       - hyperledger
 
-  cli-peer1-org2:
-    container_name: cli-peer1-org2
+  cli-peer1-oracle:
+    container_name: cli-peer1-oracle
     image: hyperledger/fabric-tools:2.2.1
     environment:
       - GOPATH=/opt/gopath
       - CORE_PEER_ADDRESSAUTODETECT=true
 
-      - CORE_PEER_ID=cli-peer1-org2
-      - CORE_PEER_ADDRESS=peer1-org2:10051
-      - CORE_PEER_LOCALMSPID=org2
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@org2/msp
+      - CORE_PEER_ID=cli-peer1-oracle
+      - CORE_PEER_ADDRESS=peer1-oracle:10051
+      - CORE_PEER_LOCALMSPID=oracle
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@oracle/msp
 
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
@@ -431,11 +431,11 @@ services:
       - ../../chaincode/resources:/opt/gopath/src/resources
       - ../../chaincode/resource_types:/opt/gopath/src/resource_types
       - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../../crypto-config/peerOrganizations/org2:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/org2/peers/peer1-org2/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/peerOrganizations/oracle:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/oracle/peers/peer1-oracle/tls:/etc/hyperledger/fabric/tls
       - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
     depends_on:
-      - peer1-org2
+      - peer1-oracle
     command: sleep 500000
     networks:
       - hyperledger
@@ -456,10 +456,10 @@ services:
   #   volumes:
   #     - pgdata:/var/lib/postgresql/data
   #   depends_on:
-  #     - peer0-org1
-  #     - peer1-org1
-  #     - peer0-org2
-  #     - peer1-org2
+  #     - peer0-ibm
+  #     - peer1-ibm
+  #     - peer0-oracle
+  #     - peer1-oracle
   #   networks:
   #     - hyperledger
 

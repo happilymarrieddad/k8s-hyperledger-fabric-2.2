@@ -10,7 +10,7 @@ import (
 func Index(clients *hyperledger.Clients) (resources *models.Resources, err error) {
 	resources = new(models.Resources)
 
-	res, err := clients.Query("org1", "mainchannel", "resources", "index", [][]byte{
+	res, err := clients.Query("ibm", "mainchannel", "resources", "index", [][]byte{
 		[]byte("{\"selector\":{ \"active\": { \"$eq\":true } }}"),
 	})
 	if err != nil {

@@ -34,7 +34,7 @@ func Update(clients *hyperledger.Clients, id string, rr *models.Resource, opts *
 		return nil, err
 	}
 
-	if _, err = clients.Invoke("org1", "mainchannel", "resources", "update", [][]byte{
+	if _, err = clients.Invoke("ibm", "mainchannel", "resources", "update", [][]byte{
 		[]byte(id),
 		packet,
 	}); err != nil {

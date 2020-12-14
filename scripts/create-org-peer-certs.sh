@@ -5,7 +5,7 @@ CLIENT=fabric-ca-client
 CDIR=/etc/hyperledger/fabric-ca/crypto-config
 mkdir -p $CDIR
 
-orgName=${1-org1}
+orgName=${1-ibm}
 CA_SCHEME=${2-https}
 CA_USERNAME=${3-admin}
 CA_PASSWORD=${4-adminpw}

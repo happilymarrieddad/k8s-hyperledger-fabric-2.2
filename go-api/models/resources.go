@@ -30,6 +30,7 @@ type Resource struct {
 	Name           string `json:"name"`
 	ResourceTypeID string `json:"resource_type_id"`
 	Active         bool   `json:"active"`
+	Owner          string `json:"owner"`
 }
 
 func NewResource(name string, typeId string, weight int, arrivalTime *time.Time) (resource *Resource, err error) {

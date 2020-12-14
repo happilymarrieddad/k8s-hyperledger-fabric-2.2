@@ -36,7 +36,7 @@ func GetRouter() Service {
 
 	_, err := clients.AddClient(
 		"Admin",
-		"org1",
+		"ibm",
 		"mainchannel",
 	)
 	if err != nil {

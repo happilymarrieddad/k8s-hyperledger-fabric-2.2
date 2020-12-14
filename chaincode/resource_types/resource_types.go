@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
@@ -32,7 +33,7 @@ type ResourceType struct {
 	Active bool   `json:"active"`
 }
 
-// ResourceTypeTransactionItem
+// ResourceTypeTransactionItem transaction item
 type ResourceTypeTransactionItem struct {
 	TXID         string       `json:"tx_id"`
 	ResourceType ResourceType `json:"resource_type"`
@@ -46,6 +47,10 @@ func (rc *ResourceTypesContract) InitLedger(ctx contractapi.TransactionContextIn
 
 // Create adds a new id with value to the world state
 func (rc *ResourceTypesContract) Create(ctx contractapi.TransactionContextInterface, id string, name string) error {
+	if id == "0" || len(id) == 0 {
+		id = uuid.New().String()
+	}
+
 	existing, err := ctx.GetStub().GetState(id)
 
 	if err != nil {

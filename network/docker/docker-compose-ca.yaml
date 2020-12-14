@@ -21,34 +21,34 @@ services:
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
       - fabric-ca
-  org1-ca:
+  ibm-ca:
     image: hyperledger/fabric-ca:1.4.7
-    container_name: org1-ca
+    container_name: ibm-ca
     ports:
       - 7055:7054
     environment: 
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - USERNAME=admin
       - PASSWORD=adminpw
-      - CSR_HOSTS=org1-ca
+      - CSR_HOSTS=ibm-ca
     volumes:
-      - ../../state/ca/org1/server:/etc/hyperledger/fabric-ca-server
+      - ../../state/ca/ibm/server:/etc/hyperledger/fabric-ca-server
       - ../../scripts:/scripts
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
       - fabric-ca
-  org2-ca:
+  oracle-ca:
     image: hyperledger/fabric-ca:1.4.7
-    container_name: org2-ca
+    container_name: oracle-ca
     ports:
       - 7056:7054
     environment: 
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - USERNAME=admin
       - PASSWORD=adminpw
-      - CSR_HOSTS=org2-ca
+      - CSR_HOSTS=oracle-ca
     volumes:
-      - ../../state/ca/org2/server:/etc/hyperledger/fabric-ca-server
+      - ../../state/ca/oracle/server:/etc/hyperledger/fabric-ca-server
       - ../../scripts:/scripts
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
@@ -76,47 +76,49 @@ services:
       - fabric-ca
     depends_on:
       - orderers-ca
-  org1-client:
+  ibm-client:
     tty: true
     image: hyperledger/fabric-ca:1.4.7
-    container_name: org1-client
+    container_name: ibm-client
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-client
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - ORG_NAME=ibm
       - CA_SCHEME=https
-      - CA_URL=org1-ca:7054
+      - CA_URL=ibm-ca:7054
       - CA_USERNAME=admin
       - CA_PASSWORD=adminpw
       - CA_CERT_PATH=/etc/hyperledger/fabric-ca-server/tls-cert.pem
     volumes:
-      - ../../state/ca/org1/client:/etc/hyperledger/fabric-ca-client
+      - ../../state/ca/ibm/client:/etc/hyperledger/fabric-ca-client
       - ../../scripts:/scripts
-      - ../../state/ca/org1/server:/etc/hyperledger/fabric-ca-server
+      - ../../state/ca/ibm/server:/etc/hyperledger/fabric-ca-server
       - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
-    command: sh -c '/scripts/start-org1-client.sh'
+    command: sh -c '/scripts/start-org-client.sh'
     networks:
       - fabric-ca
     depends_on:
-      - org1-ca
-  org2-client:
+      - ibm-ca
+  oracle-client:
     tty: true
     image: hyperledger/fabric-ca:1.4.7
-    container_name: org2-client
+    container_name: oracle-client
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-client
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - ORG_NAME=oracle
       - CA_SCHEME=https
-      - CA_URL=org2-ca:7054
+      - CA_URL=oracle-ca:7054
       - CA_USERNAME=admin
       - CA_PASSWORD=adminpw
       - CA_CERT_PATH=/etc/hyperledger/fabric-ca-server/tls-cert.pem
     volumes:
-      - ../../state/ca/org2/client:/etc/hyperledger/fabric-ca-client
+      - ../../state/ca/oracle/client:/etc/hyperledger/fabric-ca-client
       - ../../scripts:/scripts
-      - ../../state/ca/org2/server:/etc/hyperledger/fabric-ca-server
+      - ../../state/ca/oracle/server:/etc/hyperledger/fabric-ca-server
       - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
-    command: sh -c '/scripts/start-org2-client.sh'
+    command: sh -c '/scripts/start-org-client.sh'
     networks:
       - fabric-ca
     depends_on:
-      - org2-ca
+      - oracle-ca

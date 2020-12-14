@@ -4,7 +4,7 @@ version: 2.2.1
 
 client:
 
-  organization: org1
+  organization: ibm
 
   logging:
     level: info
@@ -42,7 +42,7 @@ channels:
   mainchannel:
 
     peers:
-      peer0-org1-service:
+      peer0-ibm-service:
         endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
@@ -59,18 +59,18 @@ channels:
           backoffFactor: 2.0
 
 organizations:
-  org1:
-    mspid: org1
-    cryptopath: peerOrganizations/org1/users/Admin@org1/msp
+  ibm:
+    mspid: ibm
+    cryptopath: peerOrganizations/ibm/users/Admin@ibm/msp
     peers:
-      - peer0-org1-service
-      - peer1-org1-service
-  org2:
-    mspid: org2
-    cryptopath: peerOrganizations/org2/users/Admin@org2/msp
+      - peer0-ibm-service
+      - peer1-ibm-service
+  oracle:
+    mspid: oracle
+    cryptopath: peerOrganizations/oracle/users/Admin@oracle/msp
     peers:
-      - peer0-org2-service
-      - peer1-org2-service
+      - peer0-oracle-service
+      - peer1-oracle-service
 
 orderers:
   _default:
@@ -117,61 +117,61 @@ peers:
       fail-fast: false
       allow-insecure: false
     
-  peer0-org1-service:
+  peer0-ibm-service:
     grpcOptions:
-      ssl-target-name-override: peer0-org1-service
+      ssl-target-name-override: peer0-ibm-service
       grpc.http2.keepalive_time: 15
     
     tlsCACerts:
-      path: /host/files/crypto-config/peerOrganizations/org1/msp/tlscacerts/org1-ca-7054.pem
+      path: /host/files/crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
 
-  peer1-org1-service:
+  peer1-ibm-service:
     grpcOptions:
-      ssl-target-name-override: peer1-org1-service
+      ssl-target-name-override: peer1-ibm-service
       grpc.http2.keepalive_time: 15
     
     tlsCACerts:
-      path: /host/files/crypto-config/peerOrganizations/org1/msp/tlscacerts/org1-ca-7054.pem
+      path: /host/files/crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
 
     
-  peer0-org2-service:
+  peer0-oracle-service:
     grpcOptions:
-      ssl-target-name-override: peer0-org2-service
+      ssl-target-name-override: peer0-oracle-service
       grpc.http2.keepalive_time: 15
     
     tlsCACerts:
-      path: /host/files/crypto-config/peerOrganizations/org2/msp/tlscacerts/org2-ca-7054.pem
+      path: /host/files/crypto-config/peerOrganizations/oracle/msp/tlscacerts/oracle-ca-7054.pem
 
-  peer1-org2-service:
+  peer1-oracle-service:
     grpcOptions:
-      ssl-target-name-override: peer1-org2-service
+      ssl-target-name-override: peer1-oracle-service
       grpc.http2.keepalive_time: 15
     
     tlsCACerts:
-      path: /host/files/crypto-config/peerOrganizations/org2/msp/tlscacerts/org2-ca-7054.pem
+      path: /host/files/crypto-config/peerOrganizations/oracle/msp/tlscacerts/oracle-ca-7054.pem
 
 entityMatchers:
 
   peer:
-    - pattern: (\w*)peer0-org1-service-service(\w*)
-      urlSubstitutionExp: peer0-org1-service-service:7051
-      sslTargetOverrideUrlSubstitutionExp: peer0-org1-service-service
-      mappedHost: peer0-org1-service-service
+    - pattern: (\w*)peer0-ibm-service-service(\w*)
+      urlSubstitutionExp: peer0-ibm-service-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-ibm-service-service
+      mappedHost: peer0-ibm-service-service
 
-    - pattern: (\w*)peer1-org1-service-service(\w*)
-      urlSubstitutionExp: peer1-org1-service-service:7051
-      sslTargetOverrideUrlSubstitutionExp: peer1-org1-service-service
-      mappedHost: peer1-org1-service-service
+    - pattern: (\w*)peer1-ibm-service-service(\w*)
+      urlSubstitutionExp: peer1-ibm-service-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer1-ibm-service-service
+      mappedHost: peer1-ibm-service-service
 
-    - pattern: (\w*)peer0-org2-service-service(\w*)
-      urlSubstitutionExp: peer0-org2-service-service:7051
-      sslTargetOverrideUrlSubstitutionExp: peer0-org2-service-service
-      mappedHost: peer0-org2-service-service
+    - pattern: (\w*)peer0-oracle-service-service(\w*)
+      urlSubstitutionExp: peer0-oracle-service-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-oracle-service-service
+      mappedHost: peer0-oracle-service-service
 
-    - pattern: (\w*)peer1-org2-service-service(\w*)
-      urlSubstitutionExp: peer1-org2-service-service:7051
-      sslTargetOverrideUrlSubstitutionExp: peer1-org2-service-service
-      mappedHost: peer1-org2-service-service
+    - pattern: (\w*)peer1-oracle-service-service(\w*)
+      urlSubstitutionExp: peer1-oracle-service-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer1-oracle-service-service
+      mappedHost: peer1-oracle-service-service
 
   orderer:
     - pattern: (\w*)orderer0-service(\w*)

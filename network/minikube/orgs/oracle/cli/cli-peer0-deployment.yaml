@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cli-peer0-oracle-deployment
+  labels: {
+    component: peer0,
+    type: cli,
+    org: oracle
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer0
+      type: cli
+      org: oracle
+  template:
+    metadata:
+      labels:
+        component: peer0
+        type: cli
+        org: oracle
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: peer0-oracle
+          image: hyperledger/fabric-tools:2.2.1
+          workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+          command: ["sleep"]
+          args: ["infinity"]
+          env:
+            - name: GOPATH
+              value: /opt/gopath
+            - name: CORE_PEER_ADDRESSAUTODETECT
+              value: "true"
+            - name: CORE_PEER_ID
+              value: cli-peer0-oracle
+            - name: CORE_PEER_ADDRESS
+              value: peer0-oracle-service:7051
+            - name: CORE_PEER_LOCALMSPID
+              value: oracle
+            - name: CORE_PEER_MSPCONFIGPATH
+              value: /etc/hyperledger/fabric/msp/users/Admin@oracle/msp
+            - name: CORE_PEER_TLS_ENABLED
+              value: "true"
+            - name: CORE_PEER_TLS_CERT_FILE
+              value: /etc/hyperledger/fabric/tls/server.crt
+            - name: CORE_PEER_TLS_KEY_FILE
+              value: /etc/hyperledger/fabric/tls/server.key
+            - name: CORE_PEER_TLS_ROOTCERT_FILE
+              value: /etc/hyperledger/fabric/tls/ca.crt
+          volumeMounts:
+            - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+              name: my-pv-storage
+              subPath: files/orderer
+            - mountPath: /opt/gopath/src/resources
+              name: my-pv-storage
+              subPath: files/chaincode/resources
+            - mountPath: /opt/gopath/src/resource_types
+              name: my-pv-storage
+              subPath: files/chaincode/resource_types
+            - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+              name: my-pv-storage
+              subPath: files/channels
+            - mountPath: /etc/hyperledger/fabric/msp
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/oracle
+            - mountPath: /etc/hyperledger/fabric/tls
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/oracle/peers/peer0-oracle/tls
+            - mountPath: /etc/hyperledger/orderers
+              name: my-pv-storage
+              subPath: files/crypto-config/ordererOrganizations/orderer

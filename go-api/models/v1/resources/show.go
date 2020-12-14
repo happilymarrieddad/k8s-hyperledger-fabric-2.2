@@ -12,7 +12,7 @@ func Show(clients *hyperledger.Clients, id string) (resource *models.Resource, e
 
 	resources := new(models.Resources)
 
-	res, err := clients.Query("org1", "mainchannel", "resources", "queryString", [][]byte{
+	res, err := clients.Query("ibm", "mainchannel", "resources", "queryString", [][]byte{
 		[]byte("{\"selector\":{ \"id\": { \"$eq\":\"" + id + "\" } }}"),
 	})
 	if err != nil {

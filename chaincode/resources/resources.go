@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric/common/util"
 )
@@ -32,9 +33,10 @@ type Resource struct {
 	Name           string `json:"name"`
 	ResourceTypeID string `json:"resource_type_id"`
 	Active         bool   `json:"active"`
+	Owner          string `json:"owner"`
 }
 
-// ResourceTransactionItem
+// ResourceTransactionItem the transaction item
 type ResourceTransactionItem struct {
 	TXID      string   `json:"tx_id"`
 	Resource  Resource `json:"resource"`
@@ -47,9 +49,11 @@ func (rc *ResourcesContract) InitLedger(ctx contractapi.TransactionContextInterf
 }
 
 // Create adds a new id with value to the world state
-func (rc *ResourcesContract) Create(ctx contractapi.TransactionContextInterface, id string, name string, resourceTypeID string) error {
-	existing, err := ctx.GetStub().GetState(id)
+func (rc *ResourcesContract) Create(ctx contractapi.TransactionContextInterface, name string, resourceTypeID string) error {
+	id := uuid.New().String()
 
+	// This shouldn't ever happen but just in case
+	existing, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return fmt.Errorf("Unable to interact with world state")
 	}
@@ -58,12 +62,18 @@ func (rc *ResourcesContract) Create(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("Cannot create world state pair with id %s. Already exists", id)
 	}
 
+	mspID, err := ctx.GetClientIdentity().GetMSPID()
+	if err != nil {
+		return fmt.Errorf("Unable to interact with client identity")
+	}
+
 	// TODO: Verify this name is unique
 	newResource := &Resource{
 		ID:             id,
 		Name:           name,
 		ResourceTypeID: resourceTypeID,
 		Active:         true,
+		Owner:          mspID,
 	}
 
 	chainCodeArgs := util.ToChaincodeArgs("Read", resourceTypeID)
@@ -85,7 +95,7 @@ func (rc *ResourcesContract) Create(ctx contractapi.TransactionContextInterface,
 }
 
 // Update changes the value with id in the world state
-func (rc *ResourcesContract) Update(ctx contractapi.TransactionContextInterface, id string, name string, resourceTypeID string) error {
+func (rc *ResourcesContract) Update(ctx contractapi.TransactionContextInterface, id string, name string, resourceTypeID string, newOwner string) error {
 	existing, err := ctx.GetStub().GetState(id)
 
 	if err != nil {
@@ -107,6 +117,11 @@ func (rc *ResourcesContract) Update(ctx contractapi.TransactionContextInterface,
 		existingResource.ResourceTypeID = resourceTypeID
 	}
 
+	// Change ownership if needed
+	if len(newOwner) > 0 {
+		existingResource.Owner = newOwner
+	}
+
 	newValue, err := json.Marshal(existingResource)
 	if err != nil {
 		return fmt.Errorf("Unable to marshal new object")
@@ -121,6 +136,7 @@ func (rc *ResourcesContract) Update(ctx contractapi.TransactionContextInterface,
 
 // Read returns the value at id in the world state
 func (rc *ResourcesContract) Read(ctx contractapi.TransactionContextInterface, id string) (ret *Resource, err error) {
+
 	resultsIterator, _, err := ctx.GetStub().GetQueryResultWithPagination(`{"selector": {"id":"`+id+`"}}`, 0, "")
 	if err != nil {
 		return
@@ -148,7 +164,12 @@ func (rc *ResourcesContract) Read(ctx contractapi.TransactionContextInterface, i
 func (rc *ResourcesContract) Index(
 	ctx contractapi.TransactionContextInterface,
 ) (rets []*Resource, err error) {
-	resultsIterator, _, err := ctx.GetStub().GetQueryResultWithPagination(`{"selector": {"id":{"$ne":"-"}}}`, 0, "")
+	mspID, err := ctx.GetClientIdentity().GetMSPID()
+	if err != nil {
+		return
+	}
+
+	resultsIterator, _, err := ctx.GetStub().GetQueryResultWithPagination(`{"selector": {"id":{"$ne":"-"},"owner":"`+mspID+`"}}`, 0, "")
 	if err != nil {
 		return
 	}

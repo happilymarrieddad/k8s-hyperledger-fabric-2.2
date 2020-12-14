@@ -13,46 +13,46 @@ Organizations:
             Admins:
                 Type: Signature
                 Rule: "OR('orderer.admin')"
-    - &org1
-        Name: org1
-        ID: org1
-        MSPDir: crypto-config/peerOrganizations/org1/msp
+    - &ibm
+        Name: ibm
+        ID: ibm
+        MSPDir: crypto-config/peerOrganizations/ibm/msp
         AnchorPeers:
-            - Host: peer0-org1
+            - Host: peer0-ibm
               Port: 7051
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('org1.member')"
+                Rule: "OR('ibm.member')"
             Writers:
                 Type: Signature
-                Rule: "OR('org1.member')"
+                Rule: "OR('ibm.member')"
             Admins:
                 Type: Signature
-                Rule: "OR('org1.admin')"
+                Rule: "OR('ibm.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('org1.member')"
-    - &org2
-        Name: org2
-        ID: org2
-        MSPDir: crypto-config/peerOrganizations/org2/msp
+                Rule: "OR('ibm.member')"
+    - &oracle
+        Name: oracle
+        ID: oracle
+        MSPDir: crypto-config/peerOrganizations/oracle/msp
         AnchorPeers:
-            - Host: peer0-org2
+            - Host: peer0-oracle
               Port: 9051
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('org2.member')"
+                Rule: "OR('oracle.member')"
             Writers:
                 Type: Signature
-                Rule: "OR('org2.member')"
+                Rule: "OR('oracle.member')"
             Admins:
                 Type: Signature
-                Rule: "OR('org2.admin')"
+                Rule: "OR('oracle.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('org2.member')"
+                Rule: "OR('oracle.member')"
 
 Capabilities:
     Global: &ChannelCapabilities
@@ -155,8 +155,8 @@ Profiles:
         Consortiums:
             MAIN:
                 Organizations:
-                    - *org1
-                    - *org2
+                    - *ibm
+                    - *oracle
     
     MainChannel:
         Consortium: MAIN
@@ -164,7 +164,7 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                - *org1
-                - *org2
+                - *ibm
+                - *oracle
             Capabilities:
                 <<: *ApplicationCapabilities
