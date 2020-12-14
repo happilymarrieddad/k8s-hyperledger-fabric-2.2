@@ -1,0 +1,88 @@
+{
+	"name": "first-network",
+	"version": "1.0.0",
+	"client": {
+		"tlsEnable": true,
+		"adminCredential": {
+			"id": "admin",
+			"password": "adminpw"
+		},
+		"enableAuthentication": true,
+		"organization": "ibm",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+	"channels": {
+		"mainchannel": {
+			"peers": {
+				"peer0-ibm": {},
+				"peer1-ibm": {},
+				"peer0-oracle": {},
+				"peer1-oracle": {}
+			},
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"ibm": {
+			"mspid": "ibm",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/ibm/users/Admin@ibm/msp/keystore/pvt-cert.pem"
+			},
+			"peers": ["peer0-ibm","peer1-ibm"],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/ibm/users/Admin@ibm/msp/signcerts/Admin@ibm-cert.pem"
+			}
+		},
+		"oracle": {
+			"mspid": "oracle",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/oracle/users/Admin@oracle/msp/keystore/pvt-cert.pem"
+			},
+			"peers": ["peer0-oracle","peer1-oracle"],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/oracle/users/Admin@oracle/msp/signcerts/Admin@oracle-cert.pem"
+			}
+		}
+	},
+	"peers": {
+		"peer0-ibm": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/ibm/peers/peer0-ibm/tls/ca.crt"
+			},
+			"url": "grpcs://peer0-ibm:7051"
+		},
+		"peer1-ibm": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/ibm/peers/peer1-ibm/tls/ca.crt"
+			},
+			"url": "grpcs://peer1-ibm:8051"
+		},
+		"peer0-oracle": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/oracle/peers/peer0-oracle/tls/ca.crt"
+			},
+			"url": "grpcs://peer0-oracle:9051"
+		},
+		"peer1-oracle": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/oracle/peers/peer1-oracle/tls/ca.crt"
+			},
+			"url": "grpcs://peer1-oracle:10051"
+		}
+	}
+}
