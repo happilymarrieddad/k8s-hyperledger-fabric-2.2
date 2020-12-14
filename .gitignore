@@ -5,3 +5,5 @@ state
 crypto-config
 fabric-samples
 NOTES.md
+channels
+orderer
