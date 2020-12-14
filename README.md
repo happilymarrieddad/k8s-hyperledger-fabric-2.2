@@ -1,6 +1,10 @@
 K8s Hyperledger 2.2 Network
 ======================================
 
+## Important things to read
+- [Orderering Service](https://hyperledger-fabric.readthedocs.io/en/release-2.2/orderer/ordering_service.html)
+- [Peers](https://hyperledger-fabric.readthedocs.io/en/release-2.2/peers/peers.html)
+
 ## Getting Started
 - [My bash](https://github.com/ohmyzsh/ohmyzsh)
 - [Install Hyperledger Deps](https://hyperledger-fabric.readthedocs.io/en/release-2.2/install.html)
@@ -725,3 +729,17 @@ sleep 5
 docker exec -it cli-peer0-ibm bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
 docker exec -it cli-peer0-oracle bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
 ```
+
+## Encryption Methods
++3
+
+Hello World
+KhoorZruog
+HelloWorld
+
+
+Private Key
+Public Key
+
+Hello World
+fdsgdhfdhjyt
