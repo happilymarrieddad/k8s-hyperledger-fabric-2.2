@@ -84,9 +84,6 @@ spec:
             - mountPath: /etc/hyperledger/fabric/tls
               name: my-pv-storage
               subPath: files/crypto-config/peerOrganizations/org2/peers/peer0-org2/tls
-            - mountPath: /var/hyperledger/production
-              name: my-pv-storage
-              subPath: state/org2/peers/peer0
             - mountPath: /scripts
               name: my-pv-storage
               subPath: files/scripts

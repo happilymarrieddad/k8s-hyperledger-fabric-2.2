@@ -68,9 +68,6 @@ spec:
             - mountPath: /var/hyperledger/orderer/tls
               name: my-pv-storage
               subPath: files/crypto-config/ordererOrganizations/orderer/orderers/orderer2/tls
-            - mountPath: /var/hyperledger/production/orderer
-              name: my-pv-storage
-              subPath: state/orderers/orderer2
             - mountPath: /var/hyperledger/orderer/data
               name: my-pv-storage
               subPath: files/orderer

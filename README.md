@@ -371,6 +371,7 @@ Default output format [None]: json
 
 - You need to setup an s3 bucket in the same zone as your AWS config and set the appropriate kops bash config
 ```bash
+export KOPS_CLUSTER_NAME=hyperledger.k8s.local
 export KOPS_STATE_STORE=s3://<name of your bucket>
 ```
 
@@ -379,12 +380,19 @@ Time to create the cluster
 ssh-keygen
 (No passphrase)
 
-kops create cluster hyperledger.k8s.local --zones us-west-1b,us-west-1c --node-count 5 --master-zones us-west-1b,us-west-1c --master-count 3 --authorization AlwaysAllow --yes
+kops create cluster \
+    --zones us-west-1b,us-west-1c \
+    --node-count 3 \
+    --master-zones us-west-1b,us-west-1c \
+    --master-count 3 \
+    --authorization AlwaysAllow --yes \
+    --master-volume-size 40 \
+    --node-volume-size 20
 ```
 
 To delete the cluster
 ```bash
-kops delete cluster hyperledger.k8s.local
+kops delete cluster hyperledger.k8s.local --yes
 ```
 
 You can edit the nodes
@@ -630,6 +638,12 @@ kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-org1-deployment | s
 kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-org1-deployment | sed "s/^.\{4\}//") -- bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem'
 kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-org2-deployment | sed "s/^.\{4\}//") -- bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem'
 kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-org2-deployment | sed "s/^.\{4\}//") -- bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem'
+```
+
+Startup the api and the web app
+```bash
+kubectl apply -f network/production/backend/
+kubectl apply -f network/production/frontend
 ```
 
 ## Commands
