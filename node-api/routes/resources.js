@@ -11,8 +11,6 @@ router.get('/', async (req, res) => {
 
     // Submit transactions for the smart contract
     const submitResult = await contract.evaluateTransaction('index').catch(err => {
-        console.log('Inside error!!!')
-        console.log(err)
         res.status(400).send(err)
     });
 
@@ -24,8 +22,6 @@ router.get('/', async (req, res) => {
     if (submitResult.statusCode && submitResult.statusCode === 400) {
         return res.status(400).send(submitResult.statusMessage)
     }
-
-    console.table(submitResult.toString())
 
     // Remove the unnecessary quotes
     res.json(JSON.parse(submitResult.toString()));
@@ -77,12 +73,11 @@ router.post('/', async (req, res) => {
     const contract = mainNetwork.getContract('resources');
 
     const newObj = {
-        id: uuid.v4(),
         name: req.body.name,
         resource_type_id: req.body.resource_type_id
     }
 
-    await contract.submitTransaction('create', newObj.id, newObj.name, newObj.resource_type_id).catch(err => res.status(400).send(err));;
+    await contract.submitTransaction('create', newObj.name, newObj.resource_type_id).catch(err => res.status(400).send(err));;
 
     res.json(newObj);
 })
