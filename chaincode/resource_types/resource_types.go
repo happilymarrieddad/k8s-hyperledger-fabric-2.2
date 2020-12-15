@@ -28,9 +28,10 @@ type ResourceTypesContract struct {
 
 // ResourceType resource
 type ResourceType struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Active bool   `json:"active"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Active      bool   `json:"active"`
+	PrivateName string `json:"privateName"`
 }
 
 // ResourceTypeTransactionItem transaction item
@@ -131,6 +132,19 @@ func (rc *ResourceTypesContract) Read(ctx contractapi.TransactionContextInterfac
 		return nil, fmt.Errorf("Unable to find item in world state")
 	}
 
+	mspID, err := ctx.GetClientIdentity().GetMSPID()
+	if err != nil {
+		return nil, err
+	}
+
+	valAsBytes, err := ctx.GetStub().GetPrivateData(
+		mspID+"ResourceTypesPrivateData",
+		id,
+	)
+	if err == nil && len(valAsBytes) > 0 {
+		ret.PrivateName = string(valAsBytes)
+	}
+
 	return
 }
 
@@ -144,6 +158,11 @@ func (rc *ResourceTypesContract) Index(
 	}
 	defer resultsIterator.Close()
 
+	mspID, err := ctx.GetClientIdentity().GetMSPID()
+	if err != nil {
+		return
+	}
+
 	for resultsIterator.HasNext() {
 		queryResponse, err2 := resultsIterator.Next()
 		if err2 != nil {
@@ -153,6 +172,14 @@ func (rc *ResourceTypesContract) Index(
 		res := new(ResourceType)
 		if err = json.Unmarshal(queryResponse.Value, res); err != nil {
 			return
+		}
+
+		valAsBytes, err := ctx.GetStub().GetPrivateData(
+			mspID+"ResourceTypesPrivateData",
+			res.ID,
+		)
+		if err == nil && len(valAsBytes) > 0 {
+			res.PrivateName = string(valAsBytes)
 		}
 
 		rets = append(rets, res)
@@ -191,4 +218,25 @@ func (rc *ResourceTypesContract) Transactions(
 	}
 
 	return rets, nil
+}
+
+func (rc *ResourceTypesContract) SetPrivateData(
+	ctx contractapi.TransactionContextInterface,
+	id string,
+	privateName string,
+) error {
+	mspID, err := ctx.GetClientIdentity().GetMSPID()
+	if err != nil {
+		return err
+	}
+
+	if err = ctx.GetStub().PutPrivateData(
+		mspID+"ResourceTypesPrivateData",
+		id,
+		[]byte(privateName),
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
