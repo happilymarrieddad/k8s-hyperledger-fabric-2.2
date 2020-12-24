@@ -1,0 +1,16 @@
+[
+    {
+        "name": "ibmResourceTypesPrivateData",
+        "policy": "OR('ibm.member')",
+        "requiredPeerCount": 1,
+        "maxPeerCount": 3,
+        "blockToLive": 0
+    },
+    {
+        "name": "oracleResourceTypesPrivateData",
+        "policy": "OR('oracle.member')",
+        "requiredPeerCount": 1,
+        "maxPeerCount": 3,
+        "blockToLive": 0
+    }
+]
