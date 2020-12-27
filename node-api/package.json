@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "fabric-network": "^2.2.4"
+    "fabric-network": "^2.2.4",
+    "pkcs11js": "^1.2.0"
   }
 }

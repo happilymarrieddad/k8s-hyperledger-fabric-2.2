@@ -1,0 +1,87 @@
+{
+	"name": "first-network",
+	"version": "1.1",
+	"channels": {
+		"mainchannel": {
+            "orderers": [
+                "orderer0",
+                "orderer1",
+                "orderer2"
+            ],
+			"peers": [
+				"peer0-oracle",
+				"peer1-oracle"
+            ],
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"oracle": {
+			"mspid": "oracle",
+			"adminPrivateKey": {
+				"path": "../crypto-config/peerOrganizations/oracle/users/Admin@oracle/msp/keystore/pvt-cert.pem"
+			},
+			"peers": ["peer0-oracle","peer1-oracle"],
+			"signedCert": {
+				"path": "../crypto-config/peerOrganizations/oracle/users/Admin@oracle/msp/signcerts/Admin@oracle-cert.pem"
+			}
+		}
+    },
+    "orderers": {
+        "orderer0": {
+            "url": "grpcs://orderer0:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer0"
+            },
+            "tlsCACerts": {
+                "path": "../crypto-config/ordererOrganizations/orderer/orderers/orderer0/msp/tlscacerts/tlsca.orderer-cert.pem"
+            }
+        },
+        "orderer1": {
+            "url": "grpcs://orderer1:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer1"
+            },
+            "tlsCACerts": {
+                "path": "../crypto-config/ordererOrganizations/orderer/orderers/orderer1/msp/tlscacerts/tlsca.orderer-cert.pem"
+            }
+        },
+        "orderer2": {
+            "url": "grpcs://orderer2:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer2"
+            },
+            "tlsCACerts": {
+                "path": "../crypto-config/ordererOrganizations/orderer/orderers/orderer2/msp/tlscacerts/tlsca.orderer-cert.pem"
+            }
+        }
+    },
+	"peers": {
+		"peer0-oracle": {
+			"url": "grpcs://peer0-oracle:9051",
+			"tlsCACerts": {
+				"path": "../crypto-config/peerOrganizations/oracle/peers/peer0-oracle/tls/ca.crt"
+			},
+            "grpcOptions": {
+              "ssl-target-name-override": "peer0-oracle"
+            }
+		},
+		"peer1-oracle": {
+			"url": "grpcs://peer1-oracle:10051",
+			"tlsCACerts": {
+				"path": "../crypto-config/peerOrganizations/oracle/peers/peer1-oracle/tls/ca.crt"
+			},
+            "grpcOptions": {
+              "ssl-target-name-override": "peer1-oracle"
+            }
+		}
+	}
+}

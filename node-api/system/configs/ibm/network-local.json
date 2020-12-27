@@ -1,0 +1,87 @@
+{
+	"name": "first-network",
+	"version": "1.1",
+	"channels": {
+		"mainchannel": {
+            "orderers": [
+                "orderer0",
+                "orderer1",
+                "orderer2"
+            ],
+			"peers": [
+				"peer0-ibm",
+				"peer1-ibm"
+            ],
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"ibm": {
+			"mspid": "ibm",
+			"adminPrivateKey": {
+				"path": "../crypto-config/peerOrganizations/ibm/users/Admin@ibm/msp/keystore/pvt-cert.pem"
+			},
+			"peers": ["peer0-ibm","peer1-ibm"],
+			"signedCert": {
+				"path": "../crypto-config/peerOrganizations/ibm/users/Admin@ibm/msp/signcerts/Admin@ibm-cert.pem"
+			}
+		}
+    },
+    "orderers": {
+        "orderer0": {
+            "url": "grpcs://orderer0:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer0"
+            },
+            "tlsCACerts": {
+                "path": "../crypto-config/ordererOrganizations/orderer/orderers/orderer0/msp/tlscacerts/tlsca.orderer-cert.pem"
+            }
+        },
+        "orderer1": {
+            "url": "grpcs://orderer1:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer1"
+            },
+            "tlsCACerts": {
+                "path": "../crypto-config/ordererOrganizations/orderer/orderers/orderer1/msp/tlscacerts/tlsca.orderer-cert.pem"
+            }
+        },
+        "orderer2": {
+            "url": "grpcs://orderer2:7050",
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer2"
+            },
+            "tlsCACerts": {
+                "path": "../crypto-config/ordererOrganizations/orderer/orderers/orderer2/msp/tlscacerts/tlsca.orderer-cert.pem"
+            }
+        }
+    },
+	"peers": {
+		"peer0-ibm": {
+			"url": "grpcs://peer0-ibm:7051",
+			"tlsCACerts": {
+				"path": "../crypto-config/peerOrganizations/ibm/peers/peer0-ibm/tls/ca.crt"
+			},
+            "grpcOptions": {
+              "ssl-target-name-override": "peer0-ibm"
+            }
+		},
+		"peer1-ibm": {
+			"url": "grpcs://peer1-ibm:8051",
+			"tlsCACerts": {
+				"path": "../crypto-config/peerOrganizations/ibm/peers/peer1-ibm/tls/ca.crt"
+			},
+            "grpcOptions": {
+              "ssl-target-name-override": "peer1-ibm"
+            }
+		}
+	}
+}
