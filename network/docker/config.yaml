@@ -1,0 +1,190 @@
+name: "default-svc-cluster-local-network"
+
+version: 2.2.1
+
+client:
+
+  organization: ibm
+
+  logging:
+    level: info
+  
+  cryptoconfig:
+    path: /crypto-config
+
+  # Some SDKs support pluggable KV stores, the properties under "credentialStore"
+  # are implementation specific
+  credentialStore:
+    # [Optional]. Used by user store. Not needed if all credentials are embedded in configuration
+    # and enrollments are performed elsewhere.
+    path: "/tmp/state-store"
+
+    # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations
+    # requiring a key store. PKCS#11 based implementations does not.
+    cryptoStore:
+      # Specific to the underlying KeyValueStore that backs the crypto key store.
+      path: /tmp/msp
+
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "SW"
+      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+  
+  tlsCerts:
+    systemCertPool: true
+
+channels:
+
+  mainchannel:
+
+    peers:
+      peer0-ibm-service:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+  
+    policies:
+      queryChannelConfig:
+        minResponses: 1
+        maxTargets: 1
+        retryOpts:
+          attempts: 5
+          initialBackoff: 1000ms
+          maxBackoff: 10s
+          backoffFactor: 2.0
+
+organizations:
+  ibm:
+    mspid: ibm
+    cryptopath: peerOrganizations/ibm/users/Admin@ibm/msp
+    peers:
+      - peer0-ibm-service
+      - peer1-ibm-service
+  oracle:
+    mspid: oracle
+    cryptopath: peerOrganizations/oracle/users/Admin@oracle/msp
+    peers:
+      - peer0-oracle-service
+      - peer1-oracle-service
+
+orderers:
+  _default:
+    grpcOptions:
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+  
+  orderer0-service:
+    grpcOptions:
+      ssl-target-name-override: orderer0-service
+      grpc-max-send-message-length: 15
+    
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+
+  
+  orderer1-service:
+    grpcOptions:
+      ssl-target-name-override: orderer1-service
+      grpc-max-send-message-length: 15
+    
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+
+  
+  orderer2-service:
+    grpcOptions:
+      ssl-target-name-override: orderer2-service
+      grpc-max-send-message-length: 15
+    
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+
+peers:
+
+  _default:
+    grpcOptions:
+      keep-alive-time: 1s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+    
+  peer0-ibm-service:
+    grpcOptions:
+      ssl-target-name-override: peer0-ibm-service
+      grpc.http2.keepalive_time: 15
+    
+    tlsCACerts:
+      path: /crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
+
+  peer1-ibm-service:
+    grpcOptions:
+      ssl-target-name-override: peer1-ibm-service
+      grpc.http2.keepalive_time: 15
+    
+    tlsCACerts:
+      path: /crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
+
+    
+  peer0-oracle-service:
+    grpcOptions:
+      ssl-target-name-override: peer0-oracle-service
+      grpc.http2.keepalive_time: 15
+    
+    tlsCACerts:
+      path: /crypto-config/peerOrganizations/oracle/msp/tlscacerts/oracle-ca-7054.pem
+
+  peer1-oracle-service:
+    grpcOptions:
+      ssl-target-name-override: peer1-oracle-service
+      grpc.http2.keepalive_time: 15
+    
+    tlsCACerts:
+      path: /crypto-config/peerOrganizations/oracle/msp/tlscacerts/oracle-ca-7054.pem
+
+entityMatchers:
+
+  peer:
+    - pattern: (\w*)peer0-ibm-service-service(\w*)
+      urlSubstitutionExp: peer0-ibm-service-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-ibm-service-service
+      mappedHost: peer0-ibm-service-service
+
+    - pattern: (\w*)peer1-ibm-service-service(\w*)
+      urlSubstitutionExp: peer1-ibm-service-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer1-ibm-service-service
+      mappedHost: peer1-ibm-service-service
+
+    - pattern: (\w*)peer0-oracle-service-service(\w*)
+      urlSubstitutionExp: peer0-oracle-service-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-oracle-service-service
+      mappedHost: peer0-oracle-service-service
+
+    - pattern: (\w*)peer1-oracle-service-service(\w*)
+      urlSubstitutionExp: peer1-oracle-service-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer1-oracle-service-service
+      mappedHost: peer1-oracle-service-service
+
+  orderer:
+    - pattern: (\w*)orderer0-service(\w*)
+      urlSubstitutionExp: orderer0-service:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer0-service
+      mappedHost: orderer0-service
+
+    - pattern: (\w*)orderer1-service(\w*)
+      urlSubstitutionExp: orderer1-servicet:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer1-service
+      mappedHost: orderer1-service
+      
+    - pattern: (\w*)orderer2-service(\w*)
+      urlSubstitutionExp: orderer2-service:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer2-service
+      mappedHost: orderer2-service

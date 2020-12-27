@@ -710,6 +710,7 @@ You can purge everything with
 minikube delete --purge
 ```
 
+You can find and replace file names like this
 ```bash
 sudo find . -depth -name '*org1*' -execdir bash -c 'mv -i "$1" "${1//org1/ibm}"' bash {} \;
 sudo find . -depth -name '*org2*' -execdir bash -c 'mv -i "$1" "${1//org2/oracle}"' bash {} \;
@@ -784,6 +785,3 @@ Public Key
 
 Hello World
 fdsgdhfdhjyt
-
-
-## Adding private data and updating chaincode

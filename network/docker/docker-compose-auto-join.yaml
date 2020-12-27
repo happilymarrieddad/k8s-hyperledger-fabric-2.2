@@ -542,3 +542,9 @@ services:
         condition: service_healthy
     networks:
       - hyperledger
+  go-api:
+    container_name: go-api
+    build:
+      context: ../../go-api
+      dockerfile: Dockerfile
+    
