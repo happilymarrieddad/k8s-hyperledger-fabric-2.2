@@ -7,7 +7,7 @@
                 "orderer0"
             ],
 			"peers": [
-				"peer0-ibm"
+				"peer0-oracle"
             ],
 			"connection": {
 				"timeout": {
@@ -21,36 +21,36 @@
 		}
 	},
 	"organizations": {
-		"ibm": {
-			"mspid": "ibm",
+		"oracle": {
+			"mspid": "oracle",
 			"adminPrivateKey": {
-				"path": "../crypto-config/peerOrganizations/ibm/users/Admin@ibm/msp/keystore/pvt-cert.pem"
+				"path": "/tmp/crypto/peerOrganizations/oracle/users/Admin@oracle/msp/keystore/pvt-cert.pem"
 			},
-			"peers": ["peer0-ibm"],
+			"peers": ["peer0-oracle"],
 			"signedCert": {
-				"path": "../crypto-config/peerOrganizations/ibm/users/Admin@ibm/msp/signcerts/Admin@ibm-cert.pem"
+				"path": "/tmp/crypto/peerOrganizations/oracle/users/Admin@oracle/msp/signcerts/Admin@oracle-cert.pem"
 			}
 		}
     },
     "orderers": {
         "orderer0": {
-            "url": "grpcs://localhost:7050",
+            "url": "grpcs://orderer0-service:7050",
             "grpcOptions": {
                 "ssl-target-name-override": "orderer0"
             },
             "tlsCACerts": {
-                "path": "../crypto-config/ordererOrganizations/orderer/orderers/orderer0/msp/tlscacerts/tlsca.orderer-cert.pem"
+                "path": "/tmp/crypto/ordererOrganizations/orderer/orderers/orderer0/msp/tlscacerts/tlsca.orderer-cert.pem"
             }
         }
     },
 	"peers": {
-		"peer0-ibm": {
-			"url": "grpcs://0.0.0.0:7051",
+		"peer0-oracle": {
+			"url": "grpcs://peer0-oracle-service:7051",
 			"tlsCACerts": {
-				"path": "../crypto-config/peerOrganizations/ibm/peers/peer0-ibm/tls/ca.crt"
+				"path": "/tmp/crypto/peerOrganizations/oracle/peers/peer0-oracle/tls/ca.crt"
 			},
             "grpcOptions": {
-              "ssl-target-name-override": "peer0-ibm"
+              "ssl-target-name-override": "peer0-oracle"
             }
 		}
 	}

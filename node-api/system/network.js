@@ -1,19 +1,21 @@
 const fabric = require('fabric-network');
 const fs = require('fs');
 
-const walletDirectoryPath = './system/walletstore'
-const connectionProfilePath = `./system/configs/${process.env.ENV == 'dev' ? 'network-local' : 'network'}.json`;
-let mainchannelNetwork = null;
+const mspID = process.env.MSPID || 'ibm'
 const crytoPath = `${process.env.ENV == 'dev' ? '../crypto-config' : '/tmp/crypto'}`
 
-async function setup(mspID = 'ibm') {
-    const admin1OrgMSPPath = `${crytoPath}/peerOrganizations/${mspID}/users/Admin@${mspID}/msp`
-    const certPath = `${admin1OrgMSPPath}/signcerts/Admin@${mspID}-cert.pem`
-    const pvtKeyPath = `${admin1OrgMSPPath}/keystore/pvt-cert.pem`
-
-    if (mainchannelNetwork) {
-        return mainchannelNetwork;
+async function setup(user = 'Admin') {
+    // User validation check... there's a better way
+    // TODO: Fix this
+    if (!['Admin','User1'].includes(user)) {
+        console.error(`${user} user not found...`)
     }
+
+    const walletDirectoryPath = `./system/configs/${mspID}/walletstore`
+    const connectionProfilePath = `./system/configs/${mspID}/${process.env.ENV == 'dev' ? 'network-local' : 'network'}.json`;
+    const mspPath = `${crytoPath}/peerOrganizations/${mspID}/users/${user}@${mspID}/msp`
+    const certPath = `${mspPath}/signcerts/${user}@${mspID}-cert.pem`
+    const pvtKeyPath = `${mspPath}/keystore/pvt-cert.pem`
 
     const cert = (await fs.promises.readFile(certPath)).toString();
     const pvkey = (await fs.promises.readFile(pvtKeyPath)).toString();
@@ -28,9 +30,9 @@ async function setup(mspID = 'ibm') {
         mspId: mspID,
         type: 'X.509',
     };
-    await wallet.put('admin', identity);
+    await wallet.put(user.toLowerCase(), identity);
     const gatewayOptions = {
-        identity: 'admin', // Previously imported identity
+        identity: user.toLowerCase(), // Previously imported identity
         wallet,
         discovery: {
             asLocalhost: true,
@@ -46,9 +48,7 @@ async function setup(mspID = 'ibm') {
     await gateway.connect(connectionProfile, gatewayOptions);
 
     // Obtain the smart contract with which our application wants to interact
-    mainchannelNetwork = await gateway.getNetwork('mainchannel');
-
-    return mainchannelNetwork;
+    return await gateway.getNetwork('mainchannel');
 }
 
 module.exports.setup = setup;

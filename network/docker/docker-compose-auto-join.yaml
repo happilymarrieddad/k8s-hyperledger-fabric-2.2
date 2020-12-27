@@ -99,7 +99,7 @@ services:
     networks:
       - hyperledger
 
-  # Org1 Peers
+  # IBM Peers
   peer0-ibm-couchdb:
     image: couchdb:2.3.1
     container_name: peer0-ibm-couchdb
@@ -207,7 +207,7 @@ services:
     networks:
       - hyperledger
 
-  # Org2 Peers
+  # Oracle Peers
   peer0-oracle-couchdb:
     image: couchdb:2.3.1
     container_name: peer0-oracle-couchdb
@@ -456,68 +456,89 @@ services:
     networks:
       - hyperledger
 
-  # explorerdb:
-  #   image: hyperledger/explorer-db:latest
-  #   container_name: explorerdb
-  #   hostname: explorerdb
-  #   environment:
-  #     - DATABASE_DATABASE=fabricexplorer
-  #     - DATABASE_USERNAME=hppoc
-  #     - DATABASE_PASSWORD=password
-  #   healthcheck:
-  #     test: "pg_isready -h localhost -p 5432 -q -U postgres"
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   depends_on:
-  #     - peer0-ibm
-  #     - peer1-ibm
-  #     - peer0-oracle
-  #     - peer1-oracle
-  #   networks:
-  #     - hyperledger
+  explorerdb:
+    image: hyperledger/explorer-db:latest
+    container_name: explorerdb
+    hostname: explorerdb
+    environment:
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWORD=password
+    healthcheck:
+      test: "pg_isready -h localhost -p 5432 -q -U postgres"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    depends_on:
+      - peer0-ibm
+      - peer1-ibm
+      - peer0-oracle
+      - peer1-oracle
+    networks:
+      - hyperledger
 
-  # explorer:
-  #   image: hyperledger/explorer:latest
-  #   container_name: explorer
-  #   hostname: explorer
-  #   environment:
-  #     - DATABASE_HOST=explorerdb
-  #     - DATABASE_DATABASE=fabricexplorer
-  #     - DATABASE_USERNAME=hppoc
-  #     - DATABASE_PASSWD=password
-  #     - LOG_LEVEL_APP=debug
-  #     - LOG_LEVEL_DB=debug
-  #     - LOG_LEVEL_CONSOLE=info
-  #     - LOG_CONSOLE_STDOUT=true
-  #     - DISCOVERY_AS_LOCALHOST=false
-  #   volumes:
-  #     - ./explorer/config.json:/opt/explorer/app/platform/fabric/config.json
-  #     - ./explorer/connection-profile:/opt/explorer/app/platform/fabric/connection-profile
-  #     - ../../crypto-config:/tmp/crypto
-  #     - ./explorer/walletstore:/opt/wallet
-  #   ports:
-  #     - 8080:8080
-  #   depends_on:
-  #     explorerdb:
-  #       condition: service_healthy
-  #   networks:
-  #     - hyperledger
+  explorer:
+    image: hyperledger/explorer:latest
+    container_name: explorer
+    hostname: explorer
+    environment:
+      - DATABASE_HOST=explorerdb
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWD=password
+      - LOG_LEVEL_APP=debug
+      - LOG_LEVEL_DB=debug
+      - LOG_LEVEL_CONSOLE=info
+      - LOG_CONSOLE_STDOUT=true
+      - DISCOVERY_AS_LOCALHOST=false
+    volumes:
+      - ./explorer/config.json:/opt/explorer/app/platform/fabric/config.json
+      - ./explorer/connection-profile:/opt/explorer/app/platform/fabric/connection-profile
+      - ../../crypto-config:/tmp/crypto
+      - ./explorer/walletstore:/opt/wallet
+    ports:
+      - 8080:8080
+    depends_on:
+      explorerdb:
+        condition: service_healthy
+    networks:
+      - hyperledger
 
-  # api:
-  #   image: node
-  #   working_dir: /api
-  #   container_name: api
-  #   command: node index.js
-  #   ports:
-  #     - 4000:4000
-  #   volumes:
-  #     - ../api:/api
-  #     - ../../crypto-config/:/tmp/crypto
-  #   depends_on:
-  #     explorerdb:
-  #       condition: service_healthy
-  #   networks:
-  #     - hyperledger
+  ibm-api:
+    container_name: ibm-api
+    build:
+      context: ../../node-api
+      dockerfile: Dockerfile
+    environment:
+      - ENV=dev
+      - MSPID=ibm
+    ports:
+      - 4010:4000
+    volumes:
+      - ../../node-api:/api
+      - ../../crypto-config/:/crypto-config
+    depends_on:
+      explorerdb:
+        condition: service_healthy
+    networks:
+      - hyperledger
+  oracle-api:
+    container_name: oracle-api
+    build:
+      context: ../../node-api
+      dockerfile: Dockerfile
+    environment:
+      - ENV=dev
+      - MSPID=oracle
+    ports:
+      - 4011:4000
+    volumes:
+      - ../../node-api:/api
+      - ../../crypto-config/:/crypto-config
+    depends_on:
+      explorerdb:
+        condition: service_healthy
+    networks:
+      - hyperledger

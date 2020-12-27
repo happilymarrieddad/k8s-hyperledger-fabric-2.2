@@ -5,6 +5,7 @@ const network = require('../system/network');
 
 // Querying
 router.get('/', async (req, res) => {
+    
     mainNetwork = await network.setup();
 
     const contract = mainNetwork.getContract('resource_types');

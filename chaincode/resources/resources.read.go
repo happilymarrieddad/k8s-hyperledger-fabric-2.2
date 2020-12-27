@@ -9,7 +9,6 @@ import (
 
 // Read returns the value at id in the world state
 func (rc *ResourcesContract) Read(ctx contractapi.TransactionContextInterface, id string) (ret *Resource, err error) {
-
 	resultsIterator, _, err := ctx.GetStub().GetQueryResultWithPagination(`{"selector": {"id":"`+id+`"}}`, 0, "")
 	if err != nil {
 		return
