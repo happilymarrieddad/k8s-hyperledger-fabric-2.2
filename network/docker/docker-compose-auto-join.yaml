@@ -518,9 +518,6 @@ services:
       - 4010:4000
     volumes:
       - ../../crypto-config/:/crypto-config
-    depends_on:
-      explorerdb:
-        condition: service_healthy
     networks:
       - hyperledger
   oracle-api:
@@ -535,9 +532,6 @@ services:
       - 4011:4000
     volumes:
       - ../../crypto-config/:/crypto-config
-    depends_on:
-      explorerdb:
-        condition: service_healthy
     networks:
       - hyperledger
   go-ibm-api:

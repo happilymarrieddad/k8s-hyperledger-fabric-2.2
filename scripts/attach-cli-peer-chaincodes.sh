@@ -24,7 +24,7 @@ do
     do
         SEQ=0
         # Get the current version of the chaincode
-        VERSION=$(jq ".installed_chaincodes[].references.\"$CHANNEL\".chaincodes[] | select(.name == \"resource_types\").version" ${ICFILE})
+        VERSION=$(jq ".installed_chaincodes[].references.\"$CHANNEL\".chaincodes[] | select(.name == \"$CHAINCODE\").version" ${ICFILE})
         if [ -z "$VERSION" ]; then
             # Set the version
             SEQ=1
