@@ -5,9 +5,10 @@ import "time"
 type ResourceTypes []ResourceType
 
 type ResourceType struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Active bool   `json:"active"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Active      bool   `json:"active"`
+	PrivateName string `json:"privateName"`
 }
 
 func NewResourceType(name string) (resourceType *ResourceType, err error) {

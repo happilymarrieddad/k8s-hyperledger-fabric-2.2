@@ -59,11 +59,8 @@ sudo chmod 777 -R crypto-config
 sudo chown $USER:$USER -R crypto-config
 
 configtxgen -profile OrdererGenesis -channelID syschannel -outputBlock ./orderer/genesis.block
-
 configtxgen -profile MainChannel -outputCreateChannelTx ./channels/mainchannel.tx -channelID mainchannel
-
 configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channels/ibm-anchors.tx -channelID mainchannel -asOrg ibm
-
 configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channels/oracle-anchors.tx -channelID mainchannel -asOrg oracle
 ```
 

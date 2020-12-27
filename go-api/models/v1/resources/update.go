@@ -2,6 +2,7 @@ package resources
 
 import (
 	"encoding/json"
+	"os"
 
 	"k8s-hyperledger-fabric-2.2/go-api/hyperledger"
 	"k8s-hyperledger-fabric-2.2/go-api/models"
@@ -34,7 +35,12 @@ func Update(clients *hyperledger.Clients, id string, rr *models.Resource, opts *
 		return nil, err
 	}
 
-	if _, err = clients.Invoke("ibm", "mainchannel", "resources", "update", [][]byte{
+	MSPID := os.Getenv("HYPERLEDGER_MSP_ID")
+	if len(MSPID) == 0 {
+		MSPID = "ibm"
+	}
+
+	if _, err = clients.Invoke(MSPID, "mainchannel", "resources", "update", [][]byte{
 		[]byte(id),
 		packet,
 	}); err != nil {

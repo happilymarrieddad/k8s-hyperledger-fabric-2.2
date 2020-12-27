@@ -2,6 +2,7 @@ package resources
 
 import (
 	"encoding/json"
+	"os"
 
 	uuid "github.com/satori/go.uuid"
 
@@ -22,7 +23,12 @@ func Store(clients *hyperledger.Clients, name string, typeID string) (resource *
 		return
 	}
 
-	if _, err = clients.Invoke("ibm", "mainchannel", "resources", "store", [][]byte{
+	MSPID := os.Getenv("HYPERLEDGER_MSP_ID")
+	if len(MSPID) == 0 {
+		MSPID = "ibm"
+	}
+
+	if _, err = clients.Invoke(MSPID, "mainchannel", "resources", "store", [][]byte{
 		packet,
 	}); err != nil {
 		return

@@ -517,7 +517,6 @@ services:
     ports:
       - 4010:4000
     volumes:
-      - ../../node-api:/api
       - ../../crypto-config/:/crypto-config
     depends_on:
       explorerdb:
@@ -535,16 +534,40 @@ services:
     ports:
       - 4011:4000
     volumes:
-      - ../../node-api:/api
       - ../../crypto-config/:/crypto-config
     depends_on:
       explorerdb:
         condition: service_healthy
     networks:
       - hyperledger
-  go-api:
-    container_name: go-api
+  go-ibm-api:
+    container_name: go-ibm-api
     build:
       context: ../../go-api
       dockerfile: Dockerfile
-    
+    environment:
+      - HYPERLEDGER_CONFIG_PATH=/config/config.yaml
+      - HYPERLEDGER_MSP_ID=ibm
+    volumes:
+      - ../../crypto-config/:/crypto-config
+      - ./ibm-config.yaml:/config/config.yaml
+    ports:
+      - 4020:3000
+    networks:
+      - hyperledger
+  go-oracle-api:
+    container_name: go-oracle-api
+    build:
+      context: ../../go-api
+      dockerfile: Dockerfile
+    environment:
+      - HYPERLEDGER_CONFIG_PATH=/config/config.yaml
+      - HYPERLEDGER_MSP_ID=oracle
+    volumes:
+      - ../../crypto-config/:/crypto-config
+      - ./oracle-config.yaml:/config/config.yaml
+    ports:
+      - 4021:3000
+    networks:
+      - hyperledger
+  

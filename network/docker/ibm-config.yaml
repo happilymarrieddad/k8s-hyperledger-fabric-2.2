@@ -1,0 +1,157 @@
+name: "default-svc-cluster-local-network"
+
+version: 2.2.1
+
+client:
+
+  organization: ibm
+
+  logging:
+    level: info
+  
+  cryptoconfig:
+    path: /crypto-config
+
+  # Some SDKs support pluggable KV stores, the properties under "credentialStore"
+  # are implementation specific
+  credentialStore:
+    # [Optional]. Used by user store. Not needed if all credentials are embedded in configuration
+    # and enrollments are performed elsewhere.
+    path: "/tmp/state-store"
+
+    # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations
+    # requiring a key store. PKCS#11 based implementations does not.
+    cryptoStore:
+      # Specific to the underlying KeyValueStore that backs the crypto key store.
+      path: /tmp/msp
+
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "SW"
+      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+  
+  tlsCerts:
+    systemCertPool: true
+
+channels:
+
+  mainchannel:
+
+    peers:
+      peer0-ibm:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+  
+    policies:
+      queryChannelConfig:
+        minResponses: 1
+        maxTargets: 1
+        retryOpts:
+          attempts: 5
+          initialBackoff: 1000ms
+          maxBackoff: 10s
+          backoffFactor: 2.0
+
+organizations:
+  ibm:
+    mspid: ibm
+    cryptopath: peerOrganizations/ibm/users/Admin@ibm/msp
+    peers:
+      - peer0-ibm
+      - peer1-ibm
+
+orderers:
+  _default:
+    grpcOptions:
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+  
+  orderer0:
+    grpcOptions:
+      ssl-target-name-override: orderer0
+      grpc-max-send-message-length: 15
+    
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+
+  
+  orderer1:
+    grpcOptions:
+      ssl-target-name-override: orderer1
+      grpc-max-send-message-length: 15
+    
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+
+  
+  orderer2:
+    grpcOptions:
+      ssl-target-name-override: orderer2
+      grpc-max-send-message-length: 15
+    
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+
+peers:
+
+  _default:
+    grpcOptions:
+      keep-alive-time: 1s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+    
+  peer0-ibm:
+    grpcOptions:
+      ssl-target-name-override: peer0-ibm
+      grpc.http2.keepalive_time: 15
+    
+    tlsCACerts:
+      path: /crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
+
+  peer1-ibm:
+    grpcOptions:
+      ssl-target-name-override: peer1-ibm
+      grpc.http2.keepalive_time: 15
+    
+    tlsCACerts:
+      path: /crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
+
+entityMatchers:
+
+  peer:
+    - pattern: (\w*)peer0-ibm(\w*)
+      urlSubstitutionExp: peer0-ibm:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-ibm
+      mappedHost: peer0-ibm
+
+    - pattern: (\w*)peer1-ibm(\w*)
+      urlSubstitutionExp: peer1-ibm:8051
+      sslTargetOverrideUrlSubstitutionExp: peer1-ibm
+      mappedHost: peer1-ibm
+
+  orderer:
+    - pattern: (\w*)orderer0(\w*)
+      urlSubstitutionExp: orderer0:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer0
+      mappedHost: orderer0
+
+    - pattern: (\w*)orderer1(\w*)
+      urlSubstitutionExp: orderer1t:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer1
+      mappedHost: orderer1
+      
+    - pattern: (\w*)orderer2(\w*)
+      urlSubstitutionExp: orderer2:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer2
+      mappedHost: orderer2

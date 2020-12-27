@@ -30,7 +30,7 @@ func GetRoutes(clients *hyperledger.Clients) map[string]models.SubRoutePackage {
 				models.Route{Name: "UsersUpdate", Method: "PATCH", Pattern: "/users/{id}", HandlerFunc: UsersHandler.Update()},
 				models.Route{Name: "UsersDestroy", Method: "DELETE", Pattern: "/users/{id}", HandlerFunc: UsersHandler.Destroy()},
 				// ResourceTypes
-				models.Route{Name: "ResourceTypesIndex", Method: "GET", Pattern: "/resourcetypes", HandlerFunc: ResourceTypesHandler.Index()},
+				models.Route{Name: "ResourceTypesIndex", Method: "GET", Pattern: "/resourcetypes", HandlerFunc: ResourceTypesHandler.Index(clients)},
 				models.Route{Name: "ResourceTypesStore", Method: "POST", Pattern: "/resourcetypes", HandlerFunc: ResourceTypesHandler.Store()},
 				models.Route{Name: "ResourceTypesReplace", Method: "PUT", Pattern: "/resourcetypes/{id}", HandlerFunc: ResourceTypesHandler.Update()},
 				models.Route{Name: "ResourceTypesUpdate", Method: "PATCH", Pattern: "/resourcetypes/{id}", HandlerFunc: ResourceTypesHandler.Update()},

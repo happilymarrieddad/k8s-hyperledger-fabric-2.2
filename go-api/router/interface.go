@@ -6,8 +6,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	V1Router "k8s-hyperledger-fabric-2.2/go-api/routes/v1"
 	"k8s-hyperledger-fabric-2.2/go-api/hyperledger"
+	V1Router "k8s-hyperledger-fabric-2.2/go-api/routes/v1"
 )
 
 const (
@@ -24,6 +24,10 @@ func GetRouter() Service {
 	}
 
 	configPath := os.Getenv("HYPERLEDGER_CONFIG_PATH")
+	MSPID := os.Getenv("HYPERLEDGER_MSP_ID")
+	if len(MSPID) == 0 {
+		MSPID = "ibm"
+	}
 
 	if len(configPath) == 0 {
 		panic("ENV var 'HYPERLEDGER_CONFIG_PATH' is not set. unable to connect to network")
@@ -36,7 +40,7 @@ func GetRouter() Service {
 
 	_, err := clients.AddClient(
 		"Admin",
-		"ibm",
+		MSPID,
 		"mainchannel",
 	)
 	if err != nil {
