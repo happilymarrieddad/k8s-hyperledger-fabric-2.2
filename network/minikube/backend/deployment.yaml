@@ -21,12 +21,14 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: api
-          image: happilymarrieddadudemy/udemy-node-api:e091dc18c45b65a73e937ccfe00dceb00deba617
+          image: happilymarrieddadudemy/udemy-node-api:46b56f57803b834d382db4f4eed48f8af561375f
           env:
             - name: ENV
               value: prod
             - name: HYPERLEDGER_CONFIG_PATH
               value: /files/config.yaml
+            - name: MSPID
+              value: oracle
           volumeMounts:
             - mountPath: /files
               name: my-pv-storage
