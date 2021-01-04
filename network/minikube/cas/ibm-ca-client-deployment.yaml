@@ -32,7 +32,6 @@ spec:
               value: /etc/hyperledger/fabric-ca-client
             - name: ORG_NAME
               value: ibm
-              value: https
             - name: CA_SCHEME
               value: https
             - name: CA_URL
@@ -62,3 +61,4 @@ spec:
             - mountPath: /etc/hyperledger/fabric-ca/crypto-config
               name: my-pv-storage
               subPath: files/crypto-config
+

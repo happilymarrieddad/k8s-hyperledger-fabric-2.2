@@ -27,7 +27,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: peer0-ibm-couchdb
-          image: couchdb:2.3.1
+          image: couchdb:3.1.1
           env:
             - name: COUCHDB_USER
               value: nick

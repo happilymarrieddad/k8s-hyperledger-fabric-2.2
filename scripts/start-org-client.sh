@@ -2,7 +2,7 @@
 
 . /scripts/start-client-ca.sh
 
-sleep 5
+sleep 10
 
 . /scripts/create-org-peer-certs.sh \
     ${ORG_NAME} \

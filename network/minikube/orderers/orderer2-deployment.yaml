@@ -71,4 +71,3 @@ spec:
             - mountPath: /var/hyperledger/orderer/data
               name: my-pv-storage
               subPath: files/orderer
-

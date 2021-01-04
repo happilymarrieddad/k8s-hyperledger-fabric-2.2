@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  labels: {
+    component: api
+  }
+spec:
+  type: ClusterIP
+  selector:
+    component: api
+  ports:
+    - port: 4000
+      targetPort: 4000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service-nodeport
+  labels: {
+    component: api
+  }
+spec:
+  type: NodePort
+  selector:
+    component: api
+  ports:
+    - name: http
+      nodePort: 31704
+      protocol: TCP
+      port: 4000
+      targetPort: 4000

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  labels: {
+    component: api
+  }
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: api
+  template:
+    metadata:
+      labels:
+        component: api
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: api
+          image: happilymarrieddadudemy/udemy-node-api:e091dc18c45b65a73e937ccfe00dceb00deba617
+          env:
+            - name: ENV
+              value: prod
+            - name: HYPERLEDGER_CONFIG_PATH
+              value: /files/config.yaml
+          volumeMounts:
+            - mountPath: /files
+              name: my-pv-storage
+              subPath: files
+            - mountPath: /tmp/crypto
+              name: my-pv-storage
+              subPath: files/crypto-config
