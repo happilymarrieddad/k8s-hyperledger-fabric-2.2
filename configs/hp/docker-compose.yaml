@@ -1,0 +1,702 @@
+version: '2.1'
+
+networks:
+  docker:
+    external:
+      name: hyperledger
+
+services:
+  peer0-hp-couchdb:
+    image: couchdb:2.3.1
+    container_name: peer0-hp-couchdb
+    environment:
+      - COUCHDB_USER=nick
+      - COUCHDB_PASSWORD=1234
+    volumes:
+      - ../../state/peer0-hp-couchdb:/opt/couchdb/data
+    ports:
+      - 5984:5984
+    networks:
+      - hyperledger
+  peer0-hp:
+    image: hyperledger/fabric-peer:2.2.1
+    container_name: peer0-hp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    environment:
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_VM_DOCKER_ATTACHOUT=true
+      - CORE_PEER_ID=peer0-hp
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-hp:12051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-hp:11051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-hp:11051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-hp-couchdb:5984
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer0-hp:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    ports:
+      - 11051:7051
+    depends_on:
+      - orderer0
+      - orderer1
+      - orderer2
+    networks:
+      - hyperledger
+  peer1-hp-couchdb:
+    image: couchdb:2.3.1
+    container_name: peer1-hp-couchdb
+    environment:
+      - COUCHDB_USER=nick
+      - COUCHDB_PASSWORD=1234
+    volumes:
+      - ../../state/peer1-hp-couchdb:/opt/couchdb/data
+    ports:
+      - 6984:5984
+    networks:
+      - hyperledger
+  peer1-hp:
+    image: hyperledger/fabric-peer:2.2.1
+    container_name: peer1-hp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    environment:
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_VM_DOCKER_ATTACHOUT=true
+      - CORE_PEER_ID=peer1-hp
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:12051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-hp:11051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-hp:12051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1-hp:12051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-hp-couchdb:5984
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer1-hp:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    ports:
+      - 12051:7051
+    depends_on:
+      - orderer0
+      - orderer1
+      - orderer2
+    networks:
+      - hyperledger
+  cli-peer0-hp:
+    container_name: cli-peer0-hp
+    image: hyperledger/fabric-tools:2.2.1
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ADDRESSAUTODETECT=true
+
+      - CORE_PEER_ID=cli-peer0-hp
+      - CORE_PEER_ADDRESS=peer0-hp:11051
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@hp/msp
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      
+      - CHANNELS=mainchannel
+      - CHAINCODES=resource_types;resources
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: bash -c '/scripts/start-cli-peer.sh'
+    volumes:
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/hp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    depends_on:
+      - peer0-hp
+    networks:
+      - hyperledger
+
+  cli-peer1-hp:
+    container_name: cli-peer1-hp
+    image: hyperledger/fabric-tools:2.2.1
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ADDRESSAUTODETECT=true
+
+      - CORE_PEER_ID=cli-peer1-hp
+      - CORE_PEER_ADDRESS=peer1-hp:12051
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@hp/msp
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      
+      - CHANNELS=mainchannel
+      - CHAINCODES=resource_types;resources
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: bash -c '/scripts/start-cli-peer.sh'
+    volumes:
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/hp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    depends_on:
+      - peer0-hp
+    networks:
+      - hyperledger
+version: '2.1'
+
+networks:
+  hyperledger:
+
+services:
+  peer0-hp-couchdb:
+    image: couchdb:2.3.1
+    container_name: peer0-hp-couchdb
+    environment:
+      - COUCHDB_USER=nick
+      - COUCHDB_PASSWORD=1234
+    volumes:
+      - ../../state/peer0-hp-couchdb:/opt/couchdb/data
+    ports:
+      - 5984:5984
+    networks:
+      - hyperledger
+  peer0-hp:
+    image: hyperledger/fabric-peer:2.2.1
+    container_name: peer0-hp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    environment:
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_VM_DOCKER_ATTACHOUT=true
+      - CORE_PEER_ID=peer0-hp
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-hp:12051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-hp:11051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-hp:11051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-hp-couchdb:5984
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer0-hp:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    ports:
+      - 11051:7051
+    networks:
+      - hyperledger
+  peer1-hp-couchdb:
+    image: couchdb:2.3.1
+    container_name: peer1-hp-couchdb
+    environment:
+      - COUCHDB_USER=nick
+      - COUCHDB_PASSWORD=1234
+    volumes:
+      - ../../state/peer1-hp-couchdb:/opt/couchdb/data
+    ports:
+      - 6984:5984
+    networks:
+      - hyperledger
+  peer1-hp:
+    image: hyperledger/fabric-peer:2.2.1
+    container_name: peer1-hp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    environment:
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_VM_DOCKER_ATTACHOUT=true
+      - CORE_PEER_ID=peer1-hp
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:12051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-hp:11051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-hp:12051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1-hp:12051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-hp-couchdb:5984
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer1-hp:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    ports:
+      - 12051:7051
+    networks:
+      - hyperledger
+  cli-peer0-hp:
+    container_name: cli-peer0-hp
+    image: hyperledger/fabric-tools:2.2.1
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ADDRESSAUTODETECT=true
+
+      - CORE_PEER_ID=cli-peer0-hp
+      - CORE_PEER_ADDRESS=peer0-hp:11051
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@hp/msp
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      
+      - CHANNELS=mainchannel
+      - CHAINCODES=resource_types;resources
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: bash -c '/scripts/start-cli-peer.sh'
+    volumes:
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/hp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    depends_on:
+      - peer0-hp
+    networks:
+      - hyperledger
+
+  cli-peer1-hp:
+    container_name: cli-peer1-hp
+    image: hyperledger/fabric-tools:2.2.1
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ADDRESSAUTODETECT=true
+
+      - CORE_PEER_ID=cli-peer1-hp
+      - CORE_PEER_ADDRESS=peer1-hp:12051
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@hp/msp
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      
+      - CHANNELS=mainchannel
+      - CHAINCODES=resource_types;resources
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: bash -c '/scripts/start-cli-peer.sh'
+    volumes:
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/hp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    depends_on:
+      - peer0-hp
+    networks:
+      - hyperledger
+version: '2.1'
+
+networks:
+  hyperledger:
+
+services:
+  peer0-hp-couchdb:
+    image: couchdb:2.3.1
+    container_name: peer0-hp-couchdb
+    environment:
+      - COUCHDB_USER=nick
+      - COUCHDB_PASSWORD=1234
+    volumes:
+      - ../../state/peer0-hp-couchdb:/opt/couchdb/data
+    ports:
+      - 11984:5984
+    networks:
+      - hyperledger
+  peer0-hp:
+    image: hyperledger/fabric-peer:2.2.1
+    container_name: peer0-hp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    environment:
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_VM_DOCKER_ATTACHOUT=true
+      - CORE_PEER_ID=peer0-hp
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-hp:12051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-hp:11051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-hp:11051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-hp-couchdb:5984
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer0-hp:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    ports:
+      - 11051:7051
+    networks:
+      - hyperledger
+  peer1-hp-couchdb:
+    image: couchdb:2.3.1
+    container_name: peer1-hp-couchdb
+    environment:
+      - COUCHDB_USER=nick
+      - COUCHDB_PASSWORD=1234
+    volumes:
+      - ../../state/peer1-hp-couchdb:/opt/couchdb/data
+    ports:
+      - 12984:5984
+    networks:
+      - hyperledger
+  peer1-hp:
+    image: hyperledger/fabric-peer:2.2.1
+    container_name: peer1-hp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    environment:
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_VM_DOCKER_ATTACHOUT=true
+      - CORE_PEER_ID=peer1-hp
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:12051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-hp:11051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-hp:12051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1-hp:12051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-hp-couchdb:5984
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer1-hp:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    ports:
+      - 12051:7051
+    networks:
+      - hyperledger
+  cli-peer0-hp:
+    container_name: cli-peer0-hp
+    image: hyperledger/fabric-tools:2.2.1
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ADDRESSAUTODETECT=true
+
+      - CORE_PEER_ID=cli-peer0-hp
+      - CORE_PEER_ADDRESS=peer0-hp:11051
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@hp/msp
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      
+      - CHANNELS=mainchannel
+      - CHAINCODES=resource_types;resources
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: bash -c '/scripts/start-cli-peer.sh'
+    volumes:
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/hp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    depends_on:
+      - peer0-hp
+    networks:
+      - hyperledger
+
+  cli-peer1-hp:
+    container_name: cli-peer1-hp
+    image: hyperledger/fabric-tools:2.2.1
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ADDRESSAUTODETECT=true
+
+      - CORE_PEER_ID=cli-peer1-hp
+      - CORE_PEER_ADDRESS=peer1-hp:12051
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@hp/msp
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      
+      - CHANNELS=mainchannel
+      - CHAINCODES=resource_types;resources
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: bash -c '/scripts/start-cli-peer.sh'
+    volumes:
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/hp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    depends_on:
+      - peer0-hp
+    networks:
+      - hyperledger
+version: '2.1'
+
+networks:
+  hyperledger:
+
+services:
+  peer0-hp-couchdb:
+    image: couchdb:2.3.1
+    container_name: peer0-hp-couchdb
+    environment:
+      - COUCHDB_USER=nick
+      - COUCHDB_PASSWORD=1234
+    volumes:
+      - ../../state/peer0-hp-couchdb:/opt/couchdb/data
+    ports:
+      - 11984:5984
+    networks:
+      - hyperledger
+  peer0-hp:
+    image: hyperledger/fabric-peer:2.2.1
+    container_name: peer0-hp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    environment:
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_VM_DOCKER_ATTACHOUT=true
+      - CORE_PEER_ID=peer0-hp
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-hp:12051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-hp:11051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0-hp:11051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-hp-couchdb:5984
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer0-hp:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    ports:
+      - 11051:7051
+    networks:
+      - hyperledger
+  peer1-hp-couchdb:
+    image: couchdb:2.3.1
+    container_name: peer1-hp-couchdb
+    environment:
+      - COUCHDB_USER=nick
+      - COUCHDB_PASSWORD=1234
+    volumes:
+      - ../../state/peer1-hp-couchdb:/opt/couchdb/data
+    ports:
+      - 12984:5984
+    networks:
+      - hyperledger
+  peer1-hp:
+    image: hyperledger/fabric-peer:2.2.1
+    container_name: peer1-hp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    environment:
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_VM_DOCKER_ATTACHOUT=true
+      - CORE_PEER_ID=peer1-hp
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:12051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-hp:11051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-hp:12051
+      - CORE_PEER_GOSSIP_ENDPOINT=peer1-hp:12051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-hp-couchdb:5984
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/msp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../state/peer1-hp:/var/hyperledger/production
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    ports:
+      - 12051:7051
+    networks:
+      - hyperledger
+  cli-peer0-hp:
+    container_name: cli-peer0-hp
+    image: hyperledger/fabric-tools:2.2.1
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ADDRESSAUTODETECT=true
+
+      - CORE_PEER_ID=cli-peer0-hp
+      - CORE_PEER_ADDRESS=peer0-hp:11051
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@hp/msp
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      
+      - CHANNELS=mainchannel
+      - CHAINCODES=resource_types;resources
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: sleep infinity
+    volumes:
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/hp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer0-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    depends_on:
+      - peer0-hp
+    networks:
+      - hyperledger
+
+  cli-peer1-hp:
+    container_name: cli-peer1-hp
+    image: hyperledger/fabric-tools:2.2.1
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ADDRESSAUTODETECT=true
+
+      - CORE_PEER_ID=cli-peer1-hp
+      - CORE_PEER_ADDRESS=peer1-hp:12051
+      - CORE_PEER_LOCALMSPID=hp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@hp/msp
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      
+      - CHANNELS=mainchannel
+      - CHAINCODES=resource_types;resources
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: sleep infinity
+    volumes:
+      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+      - ../../chaincode/resources:/opt/gopath/src/resources
+      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
+      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+      - ../../crypto-config/peerOrganizations/hp:/etc/hyperledger/fabric/msp
+      - ../../crypto-config/peerOrganizations/hp/peers/peer1-hp/tls:/etc/hyperledger/fabric/tls
+      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
+      - ../../scripts/:/scripts/
+    depends_on:
+      - peer0-hp
+    networks:
+      - hyperledger
