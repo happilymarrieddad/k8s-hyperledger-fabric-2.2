@@ -157,7 +157,7 @@ Profiles:
                 Organizations:
                     - *ibm
                     - *oracle
-    
+
     MainChannel:
         Consortium: MAIN
         <<: *ChannelDefaults
