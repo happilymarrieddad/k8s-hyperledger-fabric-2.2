@@ -370,6 +370,11 @@ kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-oracle-deployment |
 kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem'
 ```
 
+Start the API
+```bash
+kubectl apply -f network/minikube/backend
+```
+
 Get the address for the nodeport
 ```bash
 minikube service api-service-nodeport --url
@@ -796,25 +801,25 @@ Hello World
 fdsgdhfdhjyt
 
 ## ADDING OTHER ORGS
-- TODO: Need to figure out how to do this in docker
-- for now going to do it in minikube
 
 Create folder to store data in
 ```bash
 export NEW_ORG_NAME=hp
-export NEW_ORG_CA_PORT=7057
-export FOLDER_PATH=configs/${NEW_ORG_NAME}
-mkdir -p $FOLDER_PATH
+export FOLDER_PATH=configs/minikube/${NEW_ORG_NAME}
+mkdir -p $FOLDER_PATH/cas
+mkdir -p $FOLDER_PATH/cli
+mkdir -p $FOLDER_PATH/couchdb
+mkdir -p $FOLDER_PATH/peers
 ```
 
 Create necessary files
 ```bash
-cat <<EOT >> ${FOLDER_PATH}/configtx.yaml
+cat <<EOT > ${FOLDER_PATH}/configtx.yaml
 Organizations:
     - &orderer
         Name: orderer
         ID: orderer
-        MSPDir: crypto-config/ordererOrganizations/orderer/msp
+        MSPDir: /host/files/crypto-config/ordererOrganizations/orderer/msp
         Policies:
             Readers:
                 Type: Signature
@@ -828,9 +833,9 @@ Organizations:
     - &ibm
         Name: ibm
         ID: ibm
-        MSPDir: ../../crypto-config/peerOrganizations/ibm/msp
+        MSPDir: /host/files/crypto-config/peerOrganizations/ibm/msp
         AnchorPeers:
-            - Host: peer0-ibm
+            - Host: peer0-ibm-service
               Port: 7051
         Policies:
             Readers:
@@ -848,10 +853,10 @@ Organizations:
     - &oracle
         Name: oracle
         ID: oracle
-        MSPDir: ../../crypto-config/peerOrganizations/oracle/msp
+        MSPDir: /host/files/crypto-config/peerOrganizations/oracle/msp
         AnchorPeers:
-            - Host: peer0-oracle
-              Port: 9051
+            - Host: peer0-oracle-service
+              Port: 7051
         Policies:
             Readers:
                 Type: Signature
@@ -868,9 +873,9 @@ Organizations:
     - &${NEW_ORG_NAME}
         Name: ${NEW_ORG_NAME}
         ID: ${NEW_ORG_NAME}
-        MSPDir: ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}/msp
+        MSPDir: /host/files/crypto-config/peerOrganizations/${NEW_ORG_NAME}/msp
         AnchorPeers:
-            - Host: peer0-${NEW_ORG_NAME}
+            - Host: peer0-${NEW_ORG_NAME}-service
               Port: 7051
         Policies:
             Readers:
@@ -919,22 +924,22 @@ Orderer: &OrdererDefaults
     OrdererType: etcdraft
     EtcdRaft:
         Consenters:
-            - Host: orderer0
+            - Host: orderer0-service
               Port: 7050
-              ClientTLSCert: ../../crypto-config/ordererOrganizations/orderer/orderers/orderer0/tls/server.crt
-              ServerTLSCert: ../../crypto-config/ordererOrganizations/orderer/orderers/orderer0/tls/server.crt
-            - Host: orderer1
+              ClientTLSCert: /host/files/crypto-config/ordererOrganizations/orderer/orderers/orderer0/tls/server.crt
+              ServerTLSCert: /host/files/crypto-config/ordererOrganizations/orderer/orderers/orderer0/tls/server.crt
+            - Host: orderer1-service
               Port: 7050
-              ClientTLSCert: ../../crypto-config/ordererOrganizations/orderer/orderers/orderer1/tls/server.crt
-              ServerTLSCert: ../../crypto-config/ordererOrganizations/orderer/orderers/orderer1/tls/server.crt
-            - Host: orderer2
+              ClientTLSCert: /host/files/crypto-config/ordererOrganizations/orderer/orderers/orderer1/tls/server.crt
+              ServerTLSCert: /host/files/crypto-config/ordererOrganizations/orderer/orderers/orderer1/tls/server.crt
+            - Host: orderer2-service
               Port: 7050
-              ClientTLSCert: ../../crypto-config/ordererOrganizations/orderer/orderers/orderer2/tls/server.crt
-              ServerTLSCert: ../../crypto-config/ordererOrganizations/orderer/orderers/orderer2/tls/server.crt
+              ClientTLSCert: /host/files/crypto-config/ordererOrganizations/orderer/orderers/orderer2/tls/server.crt
+              ServerTLSCert: /host/files/crypto-config/ordererOrganizations/orderer/orderers/orderer2/tls/server.crt
     Addresses:
-        - orderer0:7050
-        - orderer1:7050
-        - orderer2:7050
+        - orderer0:7050-service
+        - orderer1:7050-service
+        - orderer2:7050-service
     BatchTimeout: 2s
     BatchSize:
         MaxMessageCount: 10
@@ -988,322 +993,811 @@ Profiles:
 
 EOT
 
-cat <<EOT >> ${FOLDER_PATH}/docker-compose-ca.yaml
-version: '2'
+cat <<EOT > ${FOLDER_PATH}/cas/${NEW_ORG_NAME}-ca-client-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${NEW_ORG_NAME}-ca-client
+  labels: {
+    component: ${NEW_ORG_NAME}-ca-client,
+    type: ca
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: ${NEW_ORG_NAME}-ca-client
+      type: ca
+  template:
+    metadata:
+      labels:
+        component: ${NEW_ORG_NAME}-ca-client
+        type: ca
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: ${NEW_ORG_NAME}-ca-client
+          image: hyperledger/fabric-ca:1.4.7
+          command: ["bash"]
+          args: ["/scripts/start-org-client.sh"]
+          env:
+            - name: FABRIC_CA_SERVER_HOME
+              value: /etc/hyperledger/fabric-ca-client
+            - name: ORG_NAME
+              value: ${NEW_ORG_NAME}
+            - name: CA_SCHEME
+              value: https
+            - name: CA_URL
+              value: "${NEW_ORG_NAME}-ca-service:7054"
+            - name: CA_USERNAME
+              value: admin
+            - name: CA_PASSWORD
+              value: adminpw
+            - name: CA_CERT_PATH
+              value: /etc/hyperledger/fabric-ca-server/tls-cert.pem
+          volumeMounts:
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+            - mountPath: /state
+              name: my-pv-storage
+              subPath: state
+            - mountPath: /files
+              name: my-pv-storage
+              subPath: files
+            - mountPath: /etc/hyperledger/fabric-ca-server
+              name: my-pv-storage
+              subPath: state/${NEW_ORG_NAME}-ca
+            - mountPath: /etc/hyperledger/fabric-ca-client
+              name: my-pv-storage
+              subPath: state/${NEW_ORG_NAME}-ca-client
+            - mountPath: /etc/hyperledger/fabric-ca/crypto-config
+              name: my-pv-storage
+              subPath: files/crypto-config
+EOT
 
-networks:
-  default:
-    external:
-      name: hyperledger
+cat <<EOT > ${FOLDER_PATH}/cas/${NEW_ORG_NAME}-ca-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${NEW_ORG_NAME}-ca
+  labels: {
+    component: ${NEW_ORG_NAME},
+    type: ca
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: ${NEW_ORG_NAME}
+      type: ca
+  template:
+    metadata:
+      labels:
+        component: ${NEW_ORG_NAME}
+        type: ca
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: ${NEW_ORG_NAME}-ca
+          image: hyperledger/fabric-ca:1.4.7
+          command: ["sh"]
+          args: ["/scripts/start-root-ca.sh"]
+          ports:
+            - containerPort: 7054
+          env:
+            - name: FABRIC_CA_HOME
+              value: /etc/hyperledger/fabric-ca-server
+            - name: USERNAME
+              value: admin
+            - name: PASSWORD
+              value: adminpw
+            - name: CSR_HOSTS
+              value: ${NEW_ORG_NAME}-ca
+          volumeMounts:
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+            - mountPath: /etc/hyperledger/fabric-ca-server
+              name: my-pv-storage
+              subPath: state/${NEW_ORG_NAME}-ca
 
-services:
-  ${NEW_ORG_NAME}-ca:
-    image: hyperledger/fabric-ca:1.4.7
-    container_name: ${NEW_ORG_NAME}-ca
-    ports:
-      - ${NEW_ORG_CA_PORT}:7054
-    environment: 
-      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-      - USERNAME=admin
-      - PASSWORD=adminpw
-      - CSR_HOSTS=${NEW_ORG_NAME}-ca
-    volumes:
-      - ../../state/ca/${NEW_ORG_NAME}/server:/etc/hyperledger/fabric-ca-server
-      - ../../scripts:/scripts
-    command: sh -c '/scripts/start-root-ca.sh'
-    networks:
-      - fabric-ca
-  # Clients
-  ${NEW_ORG_NAME}-client:
-    tty: true
-    image: hyperledger/fabric-ca:1.4.7
-    container_name: ${NEW_ORG_NAME}-client
-    environment:
-      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-client
-      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - ORG_NAME=${NEW_ORG_NAME}
-      - CA_SCHEME=https
-      - CA_URL=${NEW_ORG_NAME}-ca:7054
-      - CA_USERNAME=admin
-      - CA_PASSWORD=adminpw
-      - CA_CERT_PATH=/etc/hyperledger/fabric-ca-server/tls-cert.pem
-    volumes:
-      - ../../state/ca/${NEW_ORG_NAME}/client:/etc/hyperledger/fabric-ca-client
-      - ../../scripts:/scripts
-      - ../../state/ca/${NEW_ORG_NAME}/server:/etc/hyperledger/fabric-ca-server
-      - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
-    command: sh -c '/scripts/start-org-client.sh'
-    networks:
-      - fabric-ca
-    depends_on:
-      - ${NEW_ORG_NAME}-ca
+EOT
+
+cat <<EOT > ${FOLDER_PATH}/cas/${NEW_ORG_NAME}-ca-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${NEW_ORG_NAME}-ca-service
+  labels: {
+    component: ${NEW_ORG_NAME},
+    type: ca
+  }
+spec:
+  type: ClusterIP
+  selector:
+    component: ${NEW_ORG_NAME}
+    type: ca
+  ports:
+    - port: 7054
+      targetPort: 7054
 
 EOT
 ```
 
 Start hp ca and create certs
 ```bash
-docker-compose -f ${FOLDER_PATH}/docker-compose-ca.yaml up -d
+kubectl apply -f ${FOLDER_PATH}/cas
 sleep 20
 ```
 
-Get the config from the configtx
+NOTE: THIS IS NOT NECESSARY (DO NOT DO THIS!!!)
+Get the config from the configtx (NOTE: There isn't really a way to pass in ENV into a kubectl command easily. Just do it manually) (In this example, I just hardcoded the orgName in the configtxgen command for "hp")
+TODO: Create a script for this with the org name and then copy it and run it in the container
 ```bash
-sudo chmod 777 -R crypto-config
-sudo chown $USER:$USER -R crypto-config
+kubectl cp ${FOLDER_PATH}/configtx.yaml $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
+kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//") bash
+...
+cd /host/files
 
-configtxgen -configPath ${FOLDER_PATH} -printOrg ${NEW_ORG_NAME} > ./channels/${NEW_ORG_NAME}.json
+bin/configtxgen -printOrg hp > ./channels/hp.json
 ```
 
 Use an existing org to get the current config
 ```bash
-docker exec -it cli-peer0-ibm bash -c 'apk update'
-docker exec -it cli-peer0-ibm bash -c 'apk add jq'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'apk update'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'apk add jq'
 sleep 1
-docker exec -it cli-peer0-ibm bash -c 'peer channel fetch config config_block.pb -c mainchannel -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer channel fetch config config_block.pb -c mainchannel -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem'
 sleep 1
-docker exec -it cli-peer0-ibm bash -c 'configtxlator proto_decode --input config_block.pb --type common.Block | jq .data.data[0].payload.data.config > config.json'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'configtxlator proto_decode --input config_block.pb --type common.Block | jq .data.data[0].payload.data.config > config.json'
 
 sleep 1
-cat <<EOT >> scripts/${NEW_ORG_NAME}_modified_config.sh
+cat <<EOT > scripts/org_modified_config.sh
 #!/bin/bash
 
 jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {"${NEW_ORG_NAME}":.[1]}}}}}' config.json ./channels/${NEW_ORG_NAME}.json > modified_config.json
 EOT
-chmod +x scripts/${NEW_ORG_NAME}_modified_config.sh
-docker exec -e NEW_ORG_NAME=${NEW_ORG_NAME} -it cli-peer0-ibm bash -c '/scripts/${NEW_ORG_NAME}_modified_config.sh'
+chmod +x scripts/org_modified_config.sh
+kubectl cp ./scripts $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//"):/opt/gopath/src/github.com/hyperledger/fabric/peer
+
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c './scripts/org_modified_config.sh'
 sleep 1
-docker exec -it cli-peer0-ibm bash -c 'configtxlator proto_encode --input config.json --type common.Config --output config.pb'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'configtxlator proto_encode --input config.json --type common.Config --output config.pb'
 sleep 1
-docker exec -it cli-peer0-ibm bash -c 'configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb'
 sleep 1
-docker exec -it -e NEW_ORG_NAME=${NEW_ORG_NAME} cli-peer0-ibm bash -c '\
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c '\
 	configtxlator compute_update \
 	--channel_id mainchannel \
 	--original config.pb \
 	--updated modified_config.pb \
 	--output org_update.pb'
 sleep 1
-docker exec -it cli-peer0-ibm bash -c '\
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c '\
 	configtxlator proto_decode \
 	--input org_update.pb \
 	--type common.ConfigUpdate | jq . > org_update.json \
 	'
 sleep 1
-docker exec -it cli-peer0-ibm bash -c '/scripts/create-org-envelope.sh'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c './scripts/create-org-envelope.sh'
 sleep 1
-docker exec -it cli-peer0-ibm bash -c '\
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c '\
 	configtxlator proto_encode --input org_update_in_envelope.json --type common.Envelope --output org_update_in_envelope.pb \
 	'
 sleep 1
-docker exec -it cli-peer0-ibm bash -c '\
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c '\
 	peer channel signconfigtx -f org_update_in_envelope.pb \
 	'
-docker exec -it cli-peer0-ibm bash -c '\
+sleep 1
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c '\
 	cp org_update_in_envelope.pb channels/org_update_in_envelope.pb \
 	'
 sleep 1
-docker exec -it cli-peer0-oracle bash -c '\
-	peer channel update -f channels/org_update_in_envelope.pb -c mainchannel -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem \
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-oracle-deployment | sed "s/^.\{4\}//") -- bash -c '\
+	peer channel update -f channels/org_update_in_envelope.pb -c mainchannel -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem \
 	'
 ```
 
 Okay, so now we've updated the existing config with the new org. Time to startup the new org
 ```bash
-export PEER0_PORT=11051
-export PEER1_PORT=12051
-export PEER0_COUCHDB_PORT=11984
-export PEER1_COUCHDB_PORT=12984
-cat <<EOT >> $FOLDER_PATH/docker-compose.yaml
-version: '2.1'
+cat <<EOT > $FOLDER_PATH/couchdb/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: peer0-${NEW_ORG_NAME}-couchdb
+  labels: {
+    component: peer0,
+    type: couchdb,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  type: ClusterIP
+  selector:
+    component: peer0
+    type: couchdb
+    org: ${NEW_ORG_NAME}
+  ports:
+    - port: 5984
+      targetPort: 5984
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peer1-${NEW_ORG_NAME}-couchdb
+  labels: {
+    component: peer1,
+    type: couchdb,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  type: ClusterIP
+  selector:
+    component: peer1
+    type: couchdb
+    org: ${NEW_ORG_NAME}
+  ports:
+    - port: 5984
+      targetPort: 5984
 
-networks:
-  hyperledger:
+EOT
 
-services:
-  peer0-${NEW_ORG_NAME}-couchdb:
-    image: couchdb:2.3.1
-    container_name: peer0-${NEW_ORG_NAME}-couchdb
-    environment:
-      - COUCHDB_USER=nick
-      - COUCHDB_PASSWORD=1234
-    volumes:
-      - ../../state/peer0-${NEW_ORG_NAME}-couchdb:/opt/couchdb/data
-    ports:
-      - ${PEER0_COUCHDB_PORT}:5984
-    networks:
-      - hyperledger
-  peer0-${NEW_ORG_NAME}:
-    image: hyperledger/fabric-peer:2.2.1
-    container_name: peer0-${NEW_ORG_NAME}
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: peer node start
-    environment:
-      #- FABRIC_LOGGING_SPEC=DEBUG
-      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_PEER_ADDRESSAUTODETECT=true
-      - CORE_VM_DOCKER_ATTACHOUT=true
-      - CORE_PEER_ID=peer0-${NEW_ORG_NAME}
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:${PEER0_PORT}
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-${NEW_ORG_NAME}:${PEER1_PORT}
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0-${NEW_ORG_NAME}:${PEER0_PORT}
-      - CORE_PEER_GOSSIP_ENDPOINT=peer0-${NEW_ORG_NAME}:${PEER0_PORT}
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_LOCALMSPID=${NEW_ORG_NAME}
-      - CORE_PEER_ENDORSER_ENABLED=true
-      - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0-${NEW_ORG_NAME}-couchdb:5984
-      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
-    volumes:
-      - /var/run/docker.sock:/host/var/run/docker.sock
-      - ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer0-${NEW_ORG_NAME}/msp:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer0-${NEW_ORG_NAME}/tls:/etc/hyperledger/fabric/tls
-      - ../../state/peer0-${NEW_ORG_NAME}:/var/hyperledger/production
-      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
-      - ../../scripts/:/scripts/
-    ports:
-      - ${PEER0_PORT}:7051
-    networks:
-      - hyperledger
-  peer1-${NEW_ORG_NAME}-couchdb:
-    image: couchdb:2.3.1
-    container_name: peer1-${NEW_ORG_NAME}-couchdb
-    environment:
-      - COUCHDB_USER=nick
-      - COUCHDB_PASSWORD=1234
-    volumes:
-      - ../../state/peer1-${NEW_ORG_NAME}-couchdb:/opt/couchdb/data
-    ports:
-      - ${PEER1_COUCHDB_PORT}:5984
-    networks:
-      - hyperledger
-  peer1-${NEW_ORG_NAME}:
-    image: hyperledger/fabric-peer:2.2.1
-    container_name: peer1-${NEW_ORG_NAME}
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: peer node start
-    environment:
-      #- FABRIC_LOGGING_SPEC=DEBUG
-      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_PEER_ADDRESSAUTODETECT=true
-      - CORE_VM_DOCKER_ATTACHOUT=true
-      - CORE_PEER_ID=peer1-${NEW_ORG_NAME}
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:${PEER1_PORT}
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0-${NEW_ORG_NAME}:${PEER0_PORT}
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-${NEW_ORG_NAME}:${PEER1_PORT}
-      - CORE_PEER_GOSSIP_ENDPOINT=peer1-${NEW_ORG_NAME}:${PEER1_PORT}
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
-      - CORE_PEER_LOCALMSPID=${NEW_ORG_NAME}
-      - CORE_PEER_ENDORSER_ENABLED=true
-      - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1-${NEW_ORG_NAME}-couchdb:5984
-      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=nick
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=1234
-    volumes:
-      - /var/run/docker.sock:/host/var/run/docker.sock
-      - ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer1-${NEW_ORG_NAME}/msp:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer1-${NEW_ORG_NAME}/tls:/etc/hyperledger/fabric/tls
-      - ../../state/peer1-${NEW_ORG_NAME}:/var/hyperledger/production
-      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
-      - ../../scripts/:/scripts/
-    ports:
-      - ${PEER1_PORT}:7051
-    networks:
-      - hyperledger
-  cli-peer0-${NEW_ORG_NAME}:
-    container_name: cli-peer0-${NEW_ORG_NAME}
-    image: hyperledger/fabric-tools:2.2.1
-    environment:
-      - GOPATH=/opt/gopath
-      - CORE_PEER_ADDRESSAUTODETECT=true
+cat <<EOT > $FOLDER_PATH/couchdb/peer0-couchdb-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer0-${NEW_ORG_NAME}-couchdb-deployment
+  labels: {
+    component: peer0,
+    type: couchdb,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer0
+      type: couchdb
+      org: ${NEW_ORG_NAME}
+  template:
+    metadata:
+      labels:
+        component: peer0
+        type: couchdb
+        org: ${NEW_ORG_NAME}
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: peer0-${NEW_ORG_NAME}-couchdb
+          image: couchdb:3.1.1
+          env:
+            - name: COUCHDB_USER
+              value: nick
+            - name: COUCHDB_PASSWORD
+              value: "1234"
+          volumeMounts:
+            - mountPath: /opt/couchdb/data
+              name: my-pv-storage
+              subPath: state/${NEW_ORG_NAME}/peers/peer0-couchdb
 
-      - CORE_PEER_ID=cli-peer0-${NEW_ORG_NAME}
-      - CORE_PEER_ADDRESS=peer0-${NEW_ORG_NAME}:${PEER0_PORT}
-      - CORE_PEER_LOCALMSPID=${NEW_ORG_NAME}
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@${NEW_ORG_NAME}/msp
+EOT
 
-      - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      
-      - CHANNELS=mainchannel
-      - CHAINCODES=resource_types;resources
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: sleep infinity
-    volumes:
-      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
-      - ../../chaincode/resources:/opt/gopath/src/resources
-      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
-      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer0-${NEW_ORG_NAME}/tls:/etc/hyperledger/fabric/tls
-      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
-      - ../../scripts/:/scripts/
-    depends_on:
-      - peer0-${NEW_ORG_NAME}
-    networks:
-      - hyperledger
+cat <<EOT > $FOLDER_PATH/couchdb/peer1-couchdb-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer1-${NEW_ORG_NAME}-couchdb-deployment
+  labels: {
+    component: peer1,
+    type: couchdb,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer1
+      type: couchdb
+      org: ${NEW_ORG_NAME}
+  template:
+    metadata:
+      labels:
+        component: peer1
+        type: couchdb
+        org: ${NEW_ORG_NAME}
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: peer1-${NEW_ORG_NAME}-couchdb
+          image: couchdb:3.1.1
+          env:
+            - name: COUCHDB_USER
+              value: nick
+            - name: COUCHDB_PASSWORD
+              value: "1234"
+          volumeMounts:
+            - mountPath: /opt/couchdb/data
+              name: my-pv-storage
+              subPath: state/${NEW_ORG_NAME}/peers/peer1-couchdb
 
-  cli-peer1-${NEW_ORG_NAME}:
-    container_name: cli-peer1-${NEW_ORG_NAME}
-    image: hyperledger/fabric-tools:2.2.1
-    environment:
-      - GOPATH=/opt/gopath
-      - CORE_PEER_ADDRESSAUTODETECT=true
+EOT
 
-      - CORE_PEER_ID=cli-peer1-${NEW_ORG_NAME}
-      - CORE_PEER_ADDRESS=peer1-${NEW_ORG_NAME}:${PEER1_PORT}
-      - CORE_PEER_LOCALMSPID=${NEW_ORG_NAME}
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp/users/Admin@${NEW_ORG_NAME}/msp
+cat <<EOT > $FOLDER_PATH/cli/cli-peer0-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cli-peer0-${NEW_ORG_NAME}-deployment
+  labels: {
+    component: peer0,
+    type: cli,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer0
+      type: cli
+      org: ${NEW_ORG_NAME}
+  template:
+    metadata:
+      labels:
+        component: peer0
+        type: cli
+        org: ${NEW_ORG_NAME}
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: peer0-${NEW_ORG_NAME}
+          image: hyperledger/fabric-tools:2.2.1
+          workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+          command: ["sleep"]
+          args: ["infinity"]
+          env:
+            - name: GOPATH
+              value: /opt/gopath
+            - name: CORE_PEER_ADDRESSAUTODETECT
+              value: "true"
+            - name: CORE_PEER_ID
+              value: cli-peer0-${NEW_ORG_NAME}
+            - name: CORE_PEER_ADDRESS
+              value: peer0-${NEW_ORG_NAME}-service:7051
+            - name: CORE_PEER_LOCALMSPID
+              value: ${NEW_ORG_NAME}
+            - name: CORE_PEER_MSPCONFIGPATH
+              value: /etc/hyperledger/fabric/msp/users/Admin@${NEW_ORG_NAME}/msp
+            - name: CORE_PEER_TLS_ENABLED
+              value: "true"
+            - name: CORE_PEER_TLS_CERT_FILE
+              value: /etc/hyperledger/fabric/tls/server.crt
+            - name: CORE_PEER_TLS_KEY_FILE
+              value: /etc/hyperledger/fabric/tls/server.key
+            - name: CORE_PEER_TLS_ROOTCERT_FILE
+              value: /etc/hyperledger/fabric/tls/ca.crt
+          volumeMounts:
+            - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+              name: my-pv-storage
+              subPath: files/orderer
+            - mountPath: /opt/gopath/src/resources
+              name: my-pv-storage
+              subPath: files/chaincode/resources
+            - mountPath: /opt/gopath/src/resource_types
+              name: my-pv-storage
+              subPath: files/chaincode/resource_types
+            - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+              name: my-pv-storage
+              subPath: files/channels
+            - mountPath: /etc/hyperledger/fabric/msp
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/${NEW_ORG_NAME}
+            - mountPath: /etc/hyperledger/fabric/tls
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer0-${NEW_ORG_NAME}/tls
+            - mountPath: /etc/hyperledger/orderers
+              name: my-pv-storage
+              subPath: files/crypto-config/ordererOrganizations/orderer
 
-      - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      
-      - CHANNELS=mainchannel
-      - CHAINCODES=resource_types;resources
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: sleep infinity
-    volumes:
-      - ../../orderer/:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
-      - ../../chaincode/resources:/opt/gopath/src/resources
-      - ../../chaincode/resource_types:/opt/gopath/src/resource_types
-      - ../../channels/:/opt/gopath/src/github.com/hyperledger/fabric/peer/channels
-      - ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}:/etc/hyperledger/fabric/msp
-      - ../../crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer1-${NEW_ORG_NAME}/tls:/etc/hyperledger/fabric/tls
-      - ../../crypto-config/ordererOrganizations/orderer:/etc/hyperledger/orderers
-      - ../../scripts/:/scripts/
-    depends_on:
-      - peer0-${NEW_ORG_NAME}
-    networks:
-      - hyperledger
+EOT
+
+cat <<EOT > $FOLDER_PATH/cli/cli-peer1-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cli-peer1-${NEW_ORG_NAME}-deployment
+  labels: {
+    component: peer1,
+    type: cli,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer1
+      type: cli
+      org: ${NEW_ORG_NAME}
+  template:
+    metadata:
+      labels:
+        component: peer1
+        type: cli
+        org: ${NEW_ORG_NAME}
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: peer1-${NEW_ORG_NAME}
+          image: hyperledger/fabric-tools:2.2.1
+          workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+          command: ["sleep"]
+          args: ["infinity"]
+          env:
+            - name: GOPATH
+              value: /opt/gopath
+            - name: CORE_PEER_ADDRESSAUTODETECT
+              value: "true"
+            - name: CORE_PEER_ID
+              value: cli-peer1-${NEW_ORG_NAME}
+            - name: CORE_PEER_ADDRESS
+              value: peer1-${NEW_ORG_NAME}-service:7051
+            - name: CORE_PEER_LOCALMSPID
+              value: ${NEW_ORG_NAME}
+            - name: CORE_PEER_MSPCONFIGPATH
+              value: /etc/hyperledger/fabric/msp/users/Admin@${NEW_ORG_NAME}/msp
+            - name: CORE_PEER_TLS_ENABLED
+              value: "true"
+            - name: CORE_PEER_TLS_CERT_FILE
+              value: /etc/hyperledger/fabric/tls/server.crt
+            - name: CORE_PEER_TLS_KEY_FILE
+              value: /etc/hyperledger/fabric/tls/server.key
+            - name: CORE_PEER_TLS_ROOTCERT_FILE
+              value: /etc/hyperledger/fabric/tls/ca.crt
+          volumeMounts:
+            - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/orderer
+              name: my-pv-storage
+              subPath: files/orderer
+            - mountPath: /opt/gopath/src/resources
+              name: my-pv-storage
+              subPath: files/chaincode/resources
+            - mountPath: /opt/gopath/src/resource_types
+              name: my-pv-storage
+              subPath: files/chaincode/resource_types
+            - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/channels
+              name: my-pv-storage
+              subPath: files/channels
+            - mountPath: /etc/hyperledger/fabric/msp
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/${NEW_ORG_NAME}
+            - mountPath: /etc/hyperledger/fabric/tls
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer1-${NEW_ORG_NAME}/tls
+            - mountPath: /etc/hyperledger/orderers
+              name: my-pv-storage
+              subPath: files/crypto-config/ordererOrganizations/orderer
+
+EOT
+
+cat <<EOT > $FOLDER_PATH/peers/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: peer0-${NEW_ORG_NAME}-service
+  labels: {
+    component: peer0,
+    type: peer,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  type: ClusterIP
+  selector:
+    component: peer0
+    type: peer
+    org: ${NEW_ORG_NAME}
+  ports:
+    - port: 7051
+      targetPort: 7051
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peer1-${NEW_ORG_NAME}-service
+  labels: {
+    component: peer1,
+    type: peer,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  type: ClusterIP
+  selector:
+    component: peer1
+    type: peer
+    org: ${NEW_ORG_NAME}
+  ports:
+    - port: 7051
+      targetPort: 7051
+EOT
+
+cat <<EOT > $FOLDER_PATH/peers/peer0-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer0-${NEW_ORG_NAME}-deployment
+  labels: {
+    component: peer0,
+    type: peer,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer0
+      type: peer
+      org: ${NEW_ORG_NAME}
+  template:
+    metadata:
+      labels:
+        component: peer0
+        type: peer
+        org: ${NEW_ORG_NAME}
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+        - name: host
+          hostPath:
+            path: /var/run
+      containers:
+        - name: peer0-${NEW_ORG_NAME}
+          image: hyperledger/fabric-peer:2.2.1
+          workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+          command: ["peer"]
+          args: ["node","start"]
+          env:
+            # - name: FABRIC_LOGGING_SPEC
+            #   value: DEBUG
+            - name: CORE_VM_ENDPOINT
+              value: unix:///var/run/docker.sock
+            - name: CORE_PEER_ADDRESSAUTODETECT
+              value: "true"
+            - name: CORE_VM_DOCKER_ATTACHOUT
+              value: "true"
+            - name: CORE_PEER_ID
+              value: peer0-${NEW_ORG_NAME}-service
+            - name: CORE_PEER_LISTENADDRESS
+              value: 0.0.0.0:7051
+            - name: CORE_PEER_GOSSIP_BOOTSTRAP
+              value: peer1-${NEW_ORG_NAME}-service:7051
+            - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+              value: peer0-${NEW_ORG_NAME}-service:7051
+            - name: CORE_PEER_GOSSIP_ENDPOINT
+              value: peer0-${NEW_ORG_NAME}-service:7051
+            - name: CORE_PEER_CHAINCODELISTENADDRESS
+              value: 0.0.0.0:7052
+            - name: CORE_PEER_LOCALMSPID
+              value: ${NEW_ORG_NAME}
+            - name: CORE_PEER_ENDORSER_ENABLED
+              value: "true"
+            # - name: CORE_PEER_GOSSIP_USELEADERELECTION
+            #   value: "true"
+            - name: CORE_PEER_TLS_ENABLED
+              value: "true"
+            - name: CORE_PEER_TLS_CERT_FILE
+              value: /etc/hyperledger/fabric/tls/server.crt
+            - name: CORE_PEER_TLS_KEY_FILE
+              value: /etc/hyperledger/fabric/tls/server.key
+            - name: CORE_PEER_TLS_ROOTCERT_FILE
+              value: /etc/hyperledger/fabric/tls/ca.crt
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS
+              value: peer0-${NEW_ORG_NAME}-couchdb:5984
+            - name: CORE_LEDGER_STATE_STATEDATABASE
+              value: CouchDB
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME
+              value: nick
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
+              value: "1234"
+          volumeMounts:
+            - mountPath: /var/run
+              name: host
+            - mountPath: /etc/hyperledger/fabric/msp
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer0-${NEW_ORG_NAME}/msp
+            - mountPath: /etc/hyperledger/fabric/tls
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer0-${NEW_ORG_NAME}/tls
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+            - mountPath: /etc/hyperledger/orderers
+              name: my-pv-storage
+              subPath: files/crypto-config/ordererOrganizations/orderer
+
+EOT
+
+cat <<EOT > $FOLDER_PATH/peers/peer1-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer1-${NEW_ORG_NAME}-deployment
+  labels: {
+    component: peer1,
+    type: peer,
+    org: ${NEW_ORG_NAME}
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer1
+      type: peer
+      org: ${NEW_ORG_NAME}
+  template:
+    metadata:
+      labels:
+        component: peer1
+        type: peer
+        org: ${NEW_ORG_NAME}
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+        - name: host
+          hostPath:
+            path: /var/run
+      containers:
+        - name: peer1-${NEW_ORG_NAME}
+          image: hyperledger/fabric-peer:2.2.1
+          workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+          command: ["peer"]
+          args: ["node","start"]
+          env:
+            - name: CORE_VM_ENDPOINT
+              value: unix:///var/run/docker.sock
+            - name: CORE_PEER_ADDRESSAUTODETECT
+              value: "true"
+            - name: CORE_VM_DOCKER_ATTACHOUT
+              value: "true"
+            - name: CORE_PEER_ID
+              value: peer1-${NEW_ORG_NAME}-service
+            - name: CORE_PEER_LISTENADDRESS
+              value: 0.0.0.0:7051
+            - name: CORE_PEER_GOSSIP_BOOTSTRAP
+              value: peer0-${NEW_ORG_NAME}-service:7051
+            - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+              value: peer1-${NEW_ORG_NAME}-service:7051
+            - name: CORE_PEER_GOSSIP_ENDPOINT
+              value: peer1-${NEW_ORG_NAME}-service:7051
+            - name: CORE_PEER_CHAINCODELISTENADDRESS
+              value: 0.0.0.0:7052
+            - name: CORE_PEER_LOCALMSPID
+              value: ${NEW_ORG_NAME}
+            - name: CORE_PEER_ENDORSER_ENABLED
+              value: "true"
+            # - name: CORE_PEER_GOSSIP_USELEADERELECTION
+            #   value: "true"
+            - name: CORE_PEER_TLS_ENABLED
+              value: "true"
+            - name: CORE_PEER_TLS_CERT_FILE
+              value: /etc/hyperledger/fabric/tls/server.crt
+            - name: CORE_PEER_TLS_KEY_FILE
+              value: /etc/hyperledger/fabric/tls/server.key
+            - name: CORE_PEER_TLS_ROOTCERT_FILE
+              value: /etc/hyperledger/fabric/tls/ca.crt
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS
+              value: peer1-${NEW_ORG_NAME}-couchdb:5984
+            - name: CORE_LEDGER_STATE_STATEDATABASE
+              value: CouchDB
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME
+              value: nick
+            - name: CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
+              value: "1234"
+          volumeMounts:
+            - mountPath: /var/run
+              name: host
+            - mountPath: /etc/hyperledger/fabric/msp
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer1-${NEW_ORG_NAME}/msp
+            - mountPath: /etc/hyperledger/fabric/tls
+              name: my-pv-storage
+              subPath: files/crypto-config/peerOrganizations/${NEW_ORG_NAME}/peers/peer1-${NEW_ORG_NAME}/tls
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+            - mountPath: /etc/hyperledger/orderers
+              name: my-pv-storage
+              subPath: files/crypto-config/ordererOrganizations/orderer
+
 EOT
 ```
 
-Let's bring up the third org
+Let's bring up the third org (NOTE: Ensure each group is up before adding the next)
 ```bash
-docker-compose -f $FOLDER_PATH/docker-compose.yaml up -d
+kubectl apply -f $FOLDER_PATH/couchdb
+sleep 30
+kubectl apply -f $FOLDER_PATH/peers
+sleep 30
+kubectl apply -f $FOLDER_PATH/cli
 ```
 
 Time to join the peers to the network
 ```bash
-configtxgen -configPath ${FOLDER_PATH} -profile MainChannel -outputAnchorPeersUpdate ./channels/${NEW_ORG_NAME}-anchors.tx -channelID mainchannel -asOrg ${NEW_ORG_NAME}
 
-docker exec -it cli-peer0-${NEW_ORG_NAME} bash -c 'peer channel join -b channels/mainchannel.block'
-docker exec -it cli-peer1-${NEW_ORG_NAME} bash -c 'peer channel join -b channels/mainchannel.block'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer channel join -b channels/mainchannel.block'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer channel join -b channels/mainchannel.block'
+```
 
-sleep 5
+Time to install resource_types chaincode for the 3rd org (Need to use the NEXT seq number)
+```bash
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resource_types.tar.gz --path /opt/gopath/src/resource_types --lang golang --label resource_types_2' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resource_types.tar.gz --path /opt/gopath/src/resource_types --lang golang --label resource_types_2' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resource_types.tar.gz --path /opt/gopath/src/resource_types --lang golang --label resource_types_2' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resource_types.tar.gz --path /opt/gopath/src/resource_types --lang golang --label resource_types_2' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resource_types.tar.gz --path /opt/gopath/src/resource_types --lang golang --label resource_types_2' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resource_types.tar.gz --path /opt/gopath/src/resource_types --lang golang --label resource_types_2'
 
-docker exec -it -e NEW_ORG_NAME=${NEW_ORG_NAME} cli-peer0-${NEW_ORG_NAME} bash -c 'peer channel update -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem -c mainchannel -f channels/${NEW_ORG_NAME}-anchors.tx'
+
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resource_types.tar.gz &> pkg.txt' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resource_types.tar.gz' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resource_types.tar.gz &> pkg.txt' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resource_types.tar.gz' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resource_types.tar.gz &> pkg.txt' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resource_types.tar.gz'
+
+
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode approveformyorg -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem --channelID mainchannel --collections-config /opt/gopath/src/resource_types/collections-config.json --name resource_types --version 2.0 --sequence 2 --package-id $(tail -n 1 pkg.txt | awk '\''NF>1{print $NF}'\'')' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode approveformyorg -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem --collections-config /opt/gopath/src/resource_types/collections-config.json --channelID mainchannel --name resource_types --version 2.0 --sequence 2 --package-id $(tail -n 1 pkg.txt | awk '\''NF>1{print $NF}'\'')' &
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode approveformyorg -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem --collections-config /opt/gopath/src/resource_types/collections-config.json --channelID mainchannel --name resource_types --version 2.0 --sequence 2 --package-id $(tail -n 1 pkg.txt | awk '\''NF>1{print $NF}'\'')'
+
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode commit -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem --channelID mainchannel --collections-config /opt/gopath/src/resource_types/collections-config.json --name resource_types --version 2.0 --sequence 2'
+```
+
+Time to install resources chaincode for the 3rd org (Need to use the NEXT seq number)
+```bash
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resources.tar.gz --path /opt/gopath/src/resources --lang golang --label resources_2'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resources.tar.gz --path /opt/gopath/src/resources --lang golang --label resources_2'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resources.tar.gz --path /opt/gopath/src/resources --lang golang --label resources_2'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resources.tar.gz --path /opt/gopath/src/resources --lang golang --label resources_2'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resources.tar.gz --path /opt/gopath/src/resources --lang golang --label resources_2'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode package resources.tar.gz --path /opt/gopath/src/resources --lang golang --label resources_2'
+
+
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resources.tar.gz &> pkg.txt'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resources.tar.gz'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resources.tar.gz &> pkg.txt'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resources.tar.gz'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resources.tar.gz &> pkg.txt'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer1-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode install resources.tar.gz'
+
+
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode approveformyorg -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem --channelID mainchannel --collections-config /opt/gopath/src/resources/collections-config.json --name resources --version 2.0 --sequence 2 --package-id $(tail -n 1 pkg.txt | awk '\''NF>1{print $NF}'\'')'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-oracle-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode approveformyorg -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem --collections-config /opt/gopath/src/resources/collections-config.json --channelID mainchannel --name resources --version 2.0 --sequence 2 --package-id $(tail -n 1 pkg.txt | awk '\''NF>1{print $NF}'\'')'
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode approveformyorg -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem --collections-config /opt/gopath/src/resources/collections-config.json --channelID mainchannel --name resources --version 2.0 --sequence 2 --package-id $(tail -n 1 pkg.txt | awk '\''NF>1{print $NF}'\'')'
+
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-ibm-deployment | sed "s/^.\{4\}//") -- bash -c 'peer lifecycle chaincode commit -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem --channelID mainchannel --collections-config /opt/gopath/src/resources/collections-config.json --name resources --version 2.0 --sequence 2'
+```
+
+
+## UNNECESSARY NOTES!!!
+NOTE: This is not necessary - just here for a note (DO NOT DO THIS!!)
+```bash
+kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer channel update -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem -c mainchannel -f channels/hp-anchors.tx'
 ```

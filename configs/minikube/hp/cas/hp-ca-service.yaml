@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hp-ca-service
+  labels: {
+    component: hp,
+    type: ca
+  }
+spec:
+  type: ClusterIP
+  selector:
+    component: hp
+    type: ca
+  ports:
+    - port: 7054
+      targetPort: 7054
+
