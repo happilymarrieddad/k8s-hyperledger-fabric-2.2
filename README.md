@@ -806,6 +806,7 @@ Create folder to store data in
 ```bash
 export NEW_ORG_NAME=hp
 export FOLDER_PATH=configs/minikube/${NEW_ORG_NAME}
+rm -rf $FOLDER_PATH
 mkdir -p $FOLDER_PATH/cas
 mkdir -p $FOLDER_PATH/cli
 mkdir -p $FOLDER_PATH/couchdb
