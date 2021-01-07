@@ -8,7 +8,10 @@ K8s Hyperledger 2.2 Network
 ## Getting Started
 - [My bash](https://github.com/ohmyzsh/ohmyzsh)
 - [Install Hyperledger Deps](https://hyperledger-fabric.readthedocs.io/en/release-2.2/install.html)
-- curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.7
+Install fabric binaries and images
+```bash
+curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.7
+```
 - [Create aws account](aws.amazon.com)
 - [Create docker hub account](https://hub.docker.com/)
 - [Install Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
