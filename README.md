@@ -23,7 +23,7 @@ You want to copy over all the bin files into a bin directory where you can easil
 mkdir -p ~/bin
 cp fabric-samples/bin/* ~/bin
 ```
-=kj
+
 You then need to add to your bash the path and then source it. I use ZSH so this is how I do it. Copy this into your bash file
 ```bash
 export PATH=$PATH:~/bin
