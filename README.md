@@ -58,7 +58,7 @@ You then need to install Go and Nodejs... I would also suggest installing vue cl
 
 [Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/PRODUCTION.md)
 
-## Some other ways to run the network
+## Some other ways to run the network (good place to look for automation scripts in cli-peer start scripts)
 
 Of if you want to use the auto-join yaml: NOTE - this is experimental and it may not work for you
 - uses some unique scripts to auto join the peers and install chaincodes
@@ -141,9 +141,3 @@ fdsgdhfdhjyt
 ## ADDING OTHER ORGS
 
 [Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/ADDING_AN_ORG.md)
-
-## UNNECESSARY NOTES!!!
-NOTE: This is not necessary - just here for a note (DO NOT DO THIS!!)
-```bash
-kubectl exec -it $(kubectl get pods -o=name | grep cli-peer0-hp-deployment | sed "s/^.\{4\}//") -- bash -c 'peer channel update -o orderer0-service:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-service-7054.pem -c mainchannel -f channels/hp-anchors.tx'
-```
