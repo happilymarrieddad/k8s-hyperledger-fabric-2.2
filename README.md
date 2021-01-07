@@ -48,15 +48,15 @@ You then need to install Go and Nodejs... I would also suggest installing vue cl
 
 ## Docker (Local)
 
-This is now in the DOCKER_COMPOSE.md file
+[Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/DOCKER_COMPOSE.md)
 
 ## Kubernetes - Minikube (Local)
 
-This is now in MINIKUBE.md
+[Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/MINIKUBE.md)
 
 ## Kubernetes - Minikube (Production)
 
-This is now in PRODUCTION.md
+[Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/PRODUCTION.md)
 
 ## Some other ways to run the network
 
@@ -122,7 +122,7 @@ echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo s
 
 ## Updating chaincode
 
-This is now in UPDATING_CHAINCODE.md
+[Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/UPDATING_CHAINCODE.md)
 
 ## Encryption Methods
 +3
@@ -140,7 +140,7 @@ fdsgdhfdhjyt
 
 ## ADDING OTHER ORGS
 
-ADDING_AN_ORG.md
+[Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/ADDING_AN_ORG.md)
 
 ## UNNECESSARY NOTES!!!
 NOTE: This is not necessary - just here for a note (DO NOT DO THIS!!)
