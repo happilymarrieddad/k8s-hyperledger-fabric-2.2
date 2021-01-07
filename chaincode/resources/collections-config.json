@@ -12,5 +12,12 @@
         "requiredPeerCount": 1,
         "maxPeerCount": 3,
         "blockToLive": 0
+    },
+    {
+        "name": "hpResourcesPrivateData",
+        "policy": "OR('hp.member')",
+        "requiredPeerCount": 1,
+        "maxPeerCount": 3,
+        "blockToLive": 0
     }
 ]
