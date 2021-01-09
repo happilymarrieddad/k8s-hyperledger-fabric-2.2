@@ -7,3 +7,4 @@ fabric-samples
 NOTES.md
 channels
 orderer
+**/go.sum
