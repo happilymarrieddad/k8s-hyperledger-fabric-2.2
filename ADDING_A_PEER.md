@@ -24,6 +24,8 @@ cp network/minikube/cas/${EXISTING_ORG_NAME}-ca-service.yaml ${FOLDER_PATH}/cas
 
 There's already 2 peers so we need to use the new index to create more. i.e. 1 more node and starting at index 2
 ```bash
+sed -i -e 's/bash/sleep/g' ${FOLDER_PATH}/cas/${EXISTING_ORG_NAME}-ca-client-deployment.yaml
+sed -i -e 's/\/scripts\/start-org-client.sh/infinity/g' ${FOLDER_PATH}/cas/${EXISTING_ORG_NAME}-ca-client-deployment.yaml
 sed -i -e 's/"2"/"1"/g' ${FOLDER_PATH}/cas/${EXISTING_ORG_NAME}-ca-client-deployment.yaml
 sed -i -e 's/"0"/"2"/g' ${FOLDER_PATH}/cas/${EXISTING_ORG_NAME}-ca-client-deployment.yaml
 ```
