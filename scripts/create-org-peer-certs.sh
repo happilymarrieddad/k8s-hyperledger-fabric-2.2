@@ -13,6 +13,14 @@ CA_URL=${5}
 CA_CERT_PATH=$6
 CA_FULL_URL=${CA_SCHEME}://${CA_USERNAME}:${CA_PASSWORD}@${CA_URL}
 NUM_NODES=${7-3}
+STARTING_INDEX=${8-0}
+
+if [ "$STARTING_INDEX" -eq "0" ]; then
+    echo "Starting Org Certs"
+else
+    echo "Adding peer(s)"
+    NUM_NODES=$(expr $NUM_NODES + $STARTING_INDEX)
+fi
 
 #   normalizeMSP <home> <orgName> <adminHome>
 function normalizeMSP {
@@ -64,30 +72,32 @@ function main {
     
     orgDir=${CDIR}/peerOrganizations/${orgName}
     # Remove folder if is already exists
-    rm -rf $orgDir
-    usersDir=$orgDir/users
-    adminHome=$orgDir/users/rootAdmin
-    mkdir -p $adminHome
+    if [ "$STARTING_INDEX" -eq "0" ]; then
+        rm -rf $orgDir
+        usersDir=$orgDir/users
+        adminHome=$orgDir/users/rootAdmin
+        mkdir -p $adminHome
 
-    # Enroll org admin
-    export FABRIC_CA_HOME=$adminHome
-    $CLIENT enroll -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
+        # Enroll org admin
+        export FABRIC_CA_HOME=$adminHome
+        $CLIENT enroll -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
 
-    # Register and enroll admin
-    adminUserHome=$usersDir/Admin@${orgName}
-    export FABRIC_CA_CLIENT_HOME=${adminHome}
-    $CLIENT register --id.name Admin --id.secret secret --id.type admin --id.affiliation org1 -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
-    export FABRIC_CA_CLIENT_HOME=${adminUserHome}
-    $CLIENT enroll -u ${CA_SCHEME}://Admin:secret@${CA_URL} --tls.certfiles ${CA_CERT_PATH}
+        # Register and enroll admin
+        adminUserHome=$usersDir/Admin@${orgName}
+        export FABRIC_CA_CLIENT_HOME=${adminHome}
+        $CLIENT register --id.name Admin --id.secret secret --id.type admin --id.affiliation org1 -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
+        export FABRIC_CA_CLIENT_HOME=${adminUserHome}
+        $CLIENT enroll -u ${CA_SCHEME}://Admin:secret@${CA_URL} --tls.certfiles ${CA_CERT_PATH}
 
-    # Register and enroll user1
-    user1UserHome=$usersDir/User1@${orgName}
-    export FABRIC_CA_CLIENT_HOME=${adminHome}
-    $CLIENT register --id.name User1 --id.secret secret --id.type admin --id.affiliation org1 -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
-    export FABRIC_CA_CLIENT_HOME=${user1UserHome}
-    $CLIENT enroll -u ${CA_SCHEME}://User1:secret@${CA_URL} --tls.certfiles ${CA_CERT_PATH}
+        # Register and enroll user1
+        user1UserHome=$usersDir/User1@${orgName}
+        export FABRIC_CA_CLIENT_HOME=${adminHome}
+        $CLIENT register --id.name User1 --id.secret secret --id.type admin --id.affiliation org1 -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
+        export FABRIC_CA_CLIENT_HOME=${user1UserHome}
+        $CLIENT enroll -u ${CA_SCHEME}://User1:secret@${CA_URL} --tls.certfiles ${CA_CERT_PATH}
+    fi
 
-    nodeCount=0
+    nodeCount=${STARTING_INDEX}
     while [ $nodeCount -lt $NUM_NODES ]; do
         nodeDir=$orgDir/peers/peer${nodeCount}-${orgName}
         mkdir -p $nodeDir
@@ -127,16 +137,18 @@ function main {
         nodeCount=$(expr $nodeCount + 1)
     done
 
-    # Get CA Certs from CA
-    export FABRIC_CA_CLIENT_HOME=$orgDir
-    $CLIENT getcacert -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
-    mkdir -p $orgDir/msp/tlscacerts
-    cp $orgDir/msp/cacerts/* $orgDir/msp/tlscacerts
+    if [ "$depth" -eq "0" ]; then
+        # Get CA Certs from CA
+        export FABRIC_CA_CLIENT_HOME=$orgDir
+        $CLIENT getcacert -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
+        mkdir -p $orgDir/msp/tlscacerts
+        cp $orgDir/msp/cacerts/* $orgDir/msp/tlscacerts
 
-    normalizeMSP $orgDir $orgName $adminUserHome
-    normalizeMSP $adminHome $orgName
-    normalizeMSP $adminUserHome $orgName
-    normalizeMSP $user1UserHome $orgName
+        normalizeMSP $orgDir $orgName $adminUserHome
+        normalizeMSP $adminHome $orgName
+        normalizeMSP $adminUserHome $orgName
+        normalizeMSP $user1UserHome $orgName
+    fi
 }
 
 main
