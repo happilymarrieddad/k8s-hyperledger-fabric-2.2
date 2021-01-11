@@ -101,7 +101,7 @@ services:
 
   # IBM Peers
   peer0-ibm-couchdb:
-    image: couchdb:2.3.1
+    image: couchdb:3.1.1
     container_name: peer0-ibm-couchdb
     environment:
       - COUCHDB_USER=nick
@@ -154,7 +154,7 @@ services:
     networks:
       - hyperledger
   peer1-ibm-couchdb:
-    image: couchdb:2.3.1
+    image: couchdb:3.1.1
     container_name: peer1-ibm-couchdb
     environment:
       - COUCHDB_USER=nick
@@ -209,7 +209,7 @@ services:
 
   # Oracle Peers
   peer0-oracle-couchdb:
-    image: couchdb:2.3.1
+    image: couchdb:3.1.1
     container_name: peer0-oracle-couchdb
     environment:
       - COUCHDB_USER=nick
@@ -262,7 +262,7 @@ services:
     networks:
       - hyperledger
   peer1-oracle-couchdb:
-    image: couchdb:2.3.1
+    image: couchdb:3.1.1
     container_name: peer1-oracle-couchdb
     environment:
       - COUCHDB_USER=nick

@@ -20,6 +20,7 @@ configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channels/oracle-anch
 ```
 
 Now it's time to start the network
+- If OSX - need to jump to minikube for now. I can't find a way to make it work with Catalina. I'll keep playing around with it. It's a problem with the docker.sock file and not being able to mount it to the peer. It's needed to spin up containers for the chaincode.
 ```bash
 docker-compose -f network/docker/docker-compose.yaml up
 ```
@@ -27,9 +28,6 @@ docker-compose -f network/docker/docker-compose.yaml up
 Lets setup the artifacts
 ```bash
 docker exec -it cli-peer0-ibm bash -c 'peer channel create -c mainchannel -f ./channels/mainchannel.tx -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
-docker exec -it cli-peer1-ibm bash -c 'peer channel create -c mainchannel -f ./channels/mainchannel.tx -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
-docker exec -it cli-peer0-oracle bash -c 'peer channel create -c mainchannel -f ./channels/mainchannel.tx -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
-docker exec -it cli-peer1-oracle bash -c 'peer channel create -c mainchannel -f ./channels/mainchannel.tx -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
 
 docker exec -it cli-peer0-ibm bash -c 'cp mainchannel.block ./channels/'
 docker exec -it cli-peer0-ibm bash -c 'peer channel join -b channels/mainchannel.block'
@@ -43,7 +41,8 @@ docker exec -it cli-peer0-ibm bash -c 'peer channel update -o orderer0:7050 --tl
 docker exec -it cli-peer0-oracle bash -c 'peer channel update -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem -c mainchannel -f channels/oracle-anchors.tx'
 ```
 
-Now we are going to install the chaincode - NOTE: Make sure you go mod vendor in each chaincode folder... might need to remove the go.sum depending
+Now we are going to install the chaincode
+- Make sure you go mod vendor in each chaincode folder... might need to remove the go.sum depending
 ```bash
 docker exec -it cli-peer0-ibm bash -c 'peer lifecycle chaincode package resource_types.tar.gz --path /opt/gopath/src/resource_types --lang golang --label resource_types_1' &
 docker exec -it cli-peer1-ibm bash -c 'peer lifecycle chaincode package resource_types.tar.gz --path /opt/gopath/src/resource_types --lang golang --label resource_types_1' &
@@ -62,6 +61,8 @@ docker exec -it cli-peer0-ibm bash -c 'peer lifecycle chaincode commit -o ordere
 ```
 
 Lets go ahead and test this chaincode
+- If OSX
+1. eval $(docker-machine env)
 ```bash
 docker exec -it cli-peer0-ibm bash -c 'peer chaincode invoke -C mainchannel -n resource_types -c '\''{"Args":["Create", "1","Parts"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
 sleep 5
@@ -72,6 +73,8 @@ docker exec -it cli-peer0-ibm bash -c 'peer chaincode query -C mainchannel -n re
 ```
 
 Lets try the other chaincode
+- If OSX
+1. eval $(docker-machine env)
 ```bash
 docker exec -it cli-peer0-ibm bash -c 'peer lifecycle chaincode package resources.tar.gz --path /opt/gopath/src/resources --lang golang --label resources_1' &
 docker exec -it cli-peer1-ibm bash -c 'peer lifecycle chaincode package resources.tar.gz --path /opt/gopath/src/resources --lang golang --label resources_1' &
