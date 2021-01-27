@@ -74,16 +74,20 @@ function main {
     # Remove folder if is already exists
     if [ "$STARTING_INDEX" -eq "0" ]; then
         rm -rf $orgDir
-        usersDir=$orgDir/users
+    fi
+    usersDir=$orgDir/users
+    if [ "$STARTING_INDEX" -eq "0" ]; then
         adminHome=$orgDir/users/rootAdmin
         mkdir -p $adminHome
 
         # Enroll org admin
         export FABRIC_CA_HOME=$adminHome
         $CLIENT enroll -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
+    fi
 
-        # Register and enroll admin
-        adminUserHome=$usersDir/Admin@${orgName}
+    # Register and enroll admin
+    adminUserHome=$usersDir/Admin@${orgName}
+    if [ "$STARTING_INDEX" -eq "0" ]; then
         export FABRIC_CA_CLIENT_HOME=${adminHome}
         $CLIENT register --id.name Admin --id.secret secret --id.type admin --id.affiliation org1 -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}
         export FABRIC_CA_CLIENT_HOME=${adminUserHome}
@@ -137,7 +141,7 @@ function main {
         nodeCount=$(expr $nodeCount + 1)
     done
 
-    if [ "$depth" -eq "0" ]; then
+    if [ "$STARTING_INDEX" -eq "0" ]; then
         # Get CA Certs from CA
         export FABRIC_CA_CLIENT_HOME=$orgDir
         $CLIENT getcacert -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH}

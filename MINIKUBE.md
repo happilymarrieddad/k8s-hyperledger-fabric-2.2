@@ -29,15 +29,15 @@ example2-55fcbb9cbd-sv4c8   1/1     Running   0          17s
 
 We'll use one of these to setup the files for the network
 ```bash
-kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//") -- mkdir -p /host/files/scripts
-kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//") -- mkdir -p /host/files/chaincode
-
-kubectl cp ./scripts $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
-kubectl cp ./network/minikube/configtx.yaml $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
-kubectl cp ./network/minikube/config.yaml $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
-kubectl cp ./chaincode/resources $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/chaincode
-kubectl cp ./chaincode/resource_types $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/chaincode
-kubectl cp ./fabric-samples/bin $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
+kubectl exec -it $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//") -- mkdir -p /host/files/scripts
+kubectl exec -it $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//") -- mkdir -p /host/files/chaincode
+sleep 1
+kubectl cp ./scripts $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files
+kubectl cp ./network/minikube/configtx.yaml $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files
+kubectl cp ./network/minikube/config.yaml $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files
+kubectl cp ./chaincode/resources $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files/chaincode
+kubectl cp ./chaincode/resource_types $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files/chaincode
+kubectl cp ./fabric-samples/bin $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files
 ```
 
 Let's bash into the container and make sure everything copied over properly
@@ -201,4 +201,19 @@ kubectl apply -f network/minikube/backend
 Get the address for the nodeport
 ```bash
 minikube service api-service-nodeport --url
+```
+
+## How to delete everything
+```bash
+kubectl delete -f network/minikube/backend
+kubectl delete -f network/minikube/orgs/ibm/couchdb 
+kubectl delete -f network/minikube/orgs/oracle/couchdb
+
+kubectl delete -f network/minikube/orgs/ibm/
+kubectl delete -f network/minikube/orgs/oracle/
+
+kubectl delete -f network/minikube/orgs/ibm/cli
+kubectl delete -f network/minikube/orgs/oracle/cli
+kubectl delete -f network/minikube/cas
+kubectl delete -f network/minikube/orderers
 ```
