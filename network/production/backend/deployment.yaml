@@ -21,7 +21,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: api
-          image: happilymarrieddadudemy/udemy-node-api:46b56f57803b834d382db4f4eed48f8af561375f
+          image: happilymarrieddadudemy/udemy-node-api:3354a85c241b3f74bc83148859d140bbba28dfb8
           env:
               - name: ENV
                 value: prod
