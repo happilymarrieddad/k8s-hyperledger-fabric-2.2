@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer2-ibm-couchdb-deployment
+  labels: {
+    component: peer2,
+    type: couchdb,
+    org: ibm
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: peer2
+      type: couchdb
+      org: ibm
+  template:
+    metadata:
+      labels:
+        component: peer2
+        type: couchdb
+        org: ibm
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: peer2-ibm-couchdb
+          image: couchdb:3.1.1
+          env:
+            - name: COUCHDB_USER
+              value: nick
+            - name: COUCHDB_PASSWORD
+              value: "1234"
+          volumeMounts:
+            - mountPath: /opt/couchdb/data
+              name: my-pv-storage
+              subPath: state/ibm/peers/peer2-couchdb

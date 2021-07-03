@@ -43,9 +43,9 @@ spec:
             - name: CA_CERT_PATH
               value: /etc/hyperledger/fabric-ca-server/tls-cert.pem
             - name: NUM_NODES
-              value: "2"
+              value: "1"
             - name: STARTING_INDEX
-              value: "0"
+              value: "2"
           volumeMounts:
             - mountPath: /scripts
               name: my-pv-storage

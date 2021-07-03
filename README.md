@@ -144,3 +144,7 @@ fdsgdhfdhjyt
 ## ADDING OTHER ORGS
 
 [Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/ADDING_AN_ORG.md)
+
+## ADDING OTHER PEERS
+
+[Click Here](https://github.com/happilymarrieddad/k8s-hyperledger-fabric-2.2/blob/master/ADDING_A_PEER.md)
