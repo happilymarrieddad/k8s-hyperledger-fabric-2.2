@@ -82,7 +82,8 @@ IssuerPublicKey  IssuerRevocationPublicKey  admincerts	cacerts  keystore  signce
 root@example1-6858b4f776-wmlth:/host/files/crypto-config/peerOrganizations/ibm/msp# cd tlscacerts/
 ```
 
-Time to generate the artifacts inside one of the containers and in the files folder - NOTE: if you are on OSX you might have to load the proper libs `curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.7`
+Time to generate the artifacts inside one of the containers and in the files folder - NOTE: if you are on OSX you might have to load the proper libs `curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.7` and then cp the files in 
+the bin folder inside bin/* to /host/files/bin
 ```bash
 kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//") bash
 ...
