@@ -41,6 +41,16 @@ Wait for the ca to come online and generate the certs
 ```bash
 sleep 60
 
+kubectl exec -it $(kubectl get pods -o=name | grep ibm-ca-client | sed "s/^.\{4\}//") bash
+. /scripts/create-org-peer-certs.sh \
+    ${ORG_NAME} \
+    ${CA_SCHEME} \
+    ${CA_USERNAME} \
+    ${CA_PASSWORD} \
+    ${CA_URL} \
+    ${CA_CERT_PATH} \
+    ${NUM_NODES-3} \
+    ${STARTING_INDEX-2}
 ```
 
 Let's create the yaml files for the new peer
@@ -278,6 +288,7 @@ kubectl apply -f $FOLDER_PATH/cli
 ```
 
 Time to bring up the peers (NEED TO WAIT FOR COUCHDB)
+- for some reason the certs don't exist???
 ```bash
 kubectl apply -f $FOLDER_PATH/peers
 ```

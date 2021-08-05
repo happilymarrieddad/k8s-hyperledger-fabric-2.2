@@ -11,7 +11,7 @@ sleep 10
     ${CA_PASSWORD} \
     ${CA_URL} \
     ${CA_CERT_PATH} \
-    ${NUM_NODES-2} \
+    ${NUM_NODES-10} \
     ${STARTING_INDEX-0}
 
 sleep infinity
