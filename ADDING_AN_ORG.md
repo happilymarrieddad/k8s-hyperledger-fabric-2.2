@@ -242,7 +242,7 @@ spec:
             - name: CA_CERT_PATH
               value: /etc/hyperledger/fabric-ca-server/tls-cert.pem
             - name: NUM_NODES
-              value: "2"
+              value: "10"
             - name: STARTING_INDEX
               value: "0"
           volumeMounts:
