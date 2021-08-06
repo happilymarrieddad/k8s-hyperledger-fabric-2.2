@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: peer1-ibm-deployment
+  name: peer2-ibm-deployment
   labels: {
-    component: peer1,
+    component: peer2,
     type: peer,
     org: ibm
   }
@@ -11,13 +11,13 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      component: peer1
+      component: peer2
       type: peer
       org: ibm
   template:
     metadata:
       labels:
-        component: peer1
+        component: peer2
         type: peer
         org: ibm
     spec:
@@ -29,12 +29,14 @@ spec:
           hostPath:
             path: /var/run
       containers:
-        - name: peer1-ibm
+        - name: peer2-ibm
           image: hyperledger/fabric-peer:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["peer"]
           args: ["node","start"]
           env:
+            # - name: FABRIC_LOGGING_SPEC
+            #   value: DEBUG
             - name: CORE_VM_ENDPOINT
               value: unix:///var/run/docker.sock
             - name: CORE_PEER_ADDRESSAUTODETECT
@@ -42,15 +44,15 @@ spec:
             - name: CORE_VM_DOCKER_ATTACHOUT
               value: "true"
             - name: CORE_PEER_ID
-              value: peer1-ibm-service
+              value: peer2-ibm-service
             - name: CORE_PEER_LISTENADDRESS
               value: 0.0.0.0:7051
             - name: CORE_PEER_GOSSIP_BOOTSTRAP
               value: peer0-ibm-service:7051
             - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
-              value: peer1-ibm-service:7051
+              value: peer2-ibm-service:7051
             - name: CORE_PEER_GOSSIP_ENDPOINT
-              value: peer1-ibm-service:7051
+              value: peer2-ibm-service:7051
             - name: CORE_PEER_CHAINCODELISTENADDRESS
               value: 0.0.0.0:7052
             - name: CORE_PEER_LOCALMSPID
@@ -68,7 +70,7 @@ spec:
             - name: CORE_PEER_TLS_ROOTCERT_FILE
               value: /etc/hyperledger/fabric/tls/ca.crt
             - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS
-              value: peer1-ibm-couchdb:5984
+              value: peer2-ibm-couchdb:5984
             - name: CORE_LEDGER_STATE_STATEDATABASE
               value: CouchDB
             - name: CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME
@@ -80,13 +82,14 @@ spec:
               name: host
             - mountPath: /etc/hyperledger/fabric/msp
               name: my-pv-storage
-              subPath: files/crypto-config/peerOrganizations/ibm/peers/peer1-ibm/msp
+              subPath: files/crypto-config/peerOrganizations/ibm/peers/peer2-ibm/msp
             - mountPath: /etc/hyperledger/fabric/tls
               name: my-pv-storage
-              subPath: files/crypto-config/peerOrganizations/ibm/peers/peer1-ibm/tls
+              subPath: files/crypto-config/peerOrganizations/ibm/peers/peer2-ibm/tls
             - mountPath: /scripts
               name: my-pv-storage
               subPath: files/scripts
             - mountPath: /etc/hyperledger/orderers
               name: my-pv-storage
               subPath: files/crypto-config/ordererOrganizations/orderer
+

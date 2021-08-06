@@ -11,6 +11,8 @@ mkdir -p $FOLDER_PATH/cas
 mkdir -p $FOLDER_PATH/cli
 mkdir -p $FOLDER_PATH/couchdb
 mkdir -p $FOLDER_PATH/peers
+mkdir -p $FOLDER_PATH/chaincode/resource_types
+mkdir -p $FOLDER_PATH/chaincode/resources
 ```
 
 Create necessary files
@@ -239,6 +241,10 @@ spec:
               value: adminpw
             - name: CA_CERT_PATH
               value: /etc/hyperledger/fabric-ca-server/tls-cert.pem
+            - name: NUM_NODES
+              value: "10"
+            - name: STARTING_INDEX
+              value: "0"
           volumeMounts:
             - mountPath: /scripts
               name: my-pv-storage
@@ -334,7 +340,7 @@ EOT
 
 Next, we need to update the private data
 ```bash
-cat <<EOT > chaincode/resource_types/collections-config.json
+cat <<EOT > $FOLDER_PATH/chaincode/resource_types/collections-config.json
 [
     {
         "name": "ibmResourceTypesPrivateData",
@@ -360,7 +366,7 @@ cat <<EOT > chaincode/resource_types/collections-config.json
 ]
 EOT
 
-cat <<EOT > chaincode/resources/collections-config.json
+cat <<EOT > $FOLDER_PATH/chaincode/resources/collections-config.json
 [
     {
         "name": "ibmResourcesPrivateData",
@@ -396,8 +402,8 @@ sleep 20
 Time to copy over changed files
 ```bash
 kubectl cp ${FOLDER_PATH}/configtx.yaml $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
-kubectl cp ./chaincode/resources $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/chaincode
-kubectl cp ./chaincode/resource_types $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/chaincode
+kubectl cp ${FOLDER_PATH}/chaincode/resources $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/chaincode
+kubectl cp ${FOLDER_PATH}/chaincode/resource_types $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/chaincode
 ```
 
 Get the config from the configtx (NOTE: There isn't really a way to pass in ENV into a kubectl command easily. Just do it manually) (In this example, I just hardcoded the orgName in the configtxgen command for "hp")
@@ -625,7 +631,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: peer0-${NEW_ORG_NAME}
-          image: hyperledger/fabric-tools:2.2.1
+          image: hyperledger/fabric-tools:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["sleep"]
           args: ["infinity"]
@@ -705,7 +711,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: peer1-${NEW_ORG_NAME}
-          image: hyperledger/fabric-tools:2.2.1
+          image: hyperledger/fabric-tools:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["sleep"]
           args: ["infinity"]
@@ -828,7 +834,7 @@ spec:
             path: /var/run
       containers:
         - name: peer0-${NEW_ORG_NAME}
-          image: hyperledger/fabric-peer:2.2.1
+          image: hyperledger/fabric-peer:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["peer"]
           args: ["node","start"]
@@ -926,7 +932,7 @@ spec:
             path: /var/run
       containers:
         - name: peer1-${NEW_ORG_NAME}
-          image: hyperledger/fabric-peer:2.2.1
+          image: hyperledger/fabric-peer:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["peer"]
           args: ["node","start"]
@@ -990,13 +996,15 @@ spec:
 EOT
 ```
 
-Let's bring up the third org (NOTE: Ensure each group is up before adding the next)
+Time for the couchdb and cli to join
 ```bash
 kubectl apply -f $FOLDER_PATH/couchdb
-sleep 30
-kubectl apply -f $FOLDER_PATH/peers
-sleep 30
 kubectl apply -f $FOLDER_PATH/cli
+```
+
+Time to bring up the peers (NEED TO WAIT FOR COUCHDB)
+```bash
+kubectl apply -f $FOLDER_PATH/peers
 ```
 
 Time to join the peers to the network

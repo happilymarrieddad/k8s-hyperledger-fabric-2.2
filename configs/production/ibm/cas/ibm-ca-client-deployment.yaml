@@ -45,7 +45,7 @@ spec:
             - name: NUM_NODES
               value: "10"
             - name: STARTING_INDEX
-              value: "0"
+              value: "2"
           volumeMounts:
             - mountPath: /scripts
               name: my-pv-storage

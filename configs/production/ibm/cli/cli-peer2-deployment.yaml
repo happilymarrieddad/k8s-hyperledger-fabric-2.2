@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cli-peer1-ibm-deployment
+  name: cli-peer2-ibm-deployment
   labels: {
-    component: peer1,
+    component: peer2,
     type: cli,
     org: ibm
   }
@@ -11,13 +11,13 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      component: peer1
+      component: peer2
       type: cli
       org: ibm
   template:
     metadata:
       labels:
-        component: peer1
+        component: peer2
         type: cli
         org: ibm
     spec:
@@ -26,7 +26,7 @@ spec:
           persistentVolumeClaim:
             claimName: my-pv-claim
       containers:
-        - name: peer1-ibm
+        - name: peer2-ibm
           image: hyperledger/fabric-tools:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["sleep"]
@@ -37,9 +37,9 @@ spec:
             - name: CORE_PEER_ADDRESSAUTODETECT
               value: "true"
             - name: CORE_PEER_ID
-              value: cli-peer1-ibm
+              value: cli-peer2-ibm
             - name: CORE_PEER_ADDRESS
-              value: peer1-ibm-service:7051
+              value: peer2-ibm-service:7051
             - name: CORE_PEER_LOCALMSPID
               value: ibm
             - name: CORE_PEER_MSPCONFIGPATH
@@ -70,7 +70,7 @@ spec:
               subPath: files/crypto-config/peerOrganizations/ibm
             - mountPath: /etc/hyperledger/fabric/tls
               name: my-pv-storage
-              subPath: files/crypto-config/peerOrganizations/ibm/peers/peer1-ibm/tls
+              subPath: files/crypto-config/peerOrganizations/ibm/peers/peer2-ibm/tls
             - mountPath: /etc/hyperledger/orderers
               name: my-pv-storage
               subPath: files/crypto-config/ordererOrganizations/orderer

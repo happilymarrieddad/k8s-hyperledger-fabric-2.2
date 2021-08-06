@@ -11,7 +11,7 @@ services:
   # Orderers
   orderer0:
     container_name: orderer0
-    image: hyperledger/fabric-orderer:2.2.1
+    image: hyperledger/fabric-orderer:2.3.2
     working_dir: /var/hyperledger/orderer
     environment: 
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -41,7 +41,7 @@ services:
       - hyperledger
   orderer1:
     container_name: orderer1
-    image: hyperledger/fabric-orderer:2.2.1
+    image: hyperledger/fabric-orderer:2.3.2
     working_dir: /var/hyperledger/orderer
     environment: 
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -71,7 +71,7 @@ services:
       - hyperledger
   orderer2:
     container_name: orderer2
-    image: hyperledger/fabric-orderer:2.2.1
+    image: hyperledger/fabric-orderer:2.3.2
     environment: 
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
@@ -113,7 +113,7 @@ services:
     networks:
       - hyperledger
   peer0-ibm:
-    image: hyperledger/fabric-peer:2.2.1
+    image: hyperledger/fabric-peer:2.3.2
     container_name: peer0-ibm
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
@@ -166,7 +166,7 @@ services:
     networks:
       - hyperledger
   peer1-ibm:
-    image: hyperledger/fabric-peer:2.2.1
+    image: hyperledger/fabric-peer:2.3.2
     container_name: peer1-ibm
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
@@ -221,7 +221,7 @@ services:
     networks:
       - hyperledger
   peer0-oracle:
-    image: hyperledger/fabric-peer:2.2.1
+    image: hyperledger/fabric-peer:2.3.2
     container_name: peer0-oracle
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
@@ -274,7 +274,7 @@ services:
     networks:
       - hyperledger
   peer1-oracle:
-    image: hyperledger/fabric-peer:2.2.1
+    image: hyperledger/fabric-peer:2.3.2
     container_name: peer1-oracle
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
@@ -318,7 +318,7 @@ services:
   # CLIs
   cli-peer0-ibm:
     container_name: cli-peer0-ibm
-    image: hyperledger/fabric-tools:2.2.1
+    image: hyperledger/fabric-tools:2.3.2
     environment:
       - GOPATH=/opt/gopath
       - CORE_PEER_ADDRESSAUTODETECT=true
@@ -353,7 +353,7 @@ services:
 
   cli-peer1-ibm:
     container_name: cli-peer1-ibm
-    image: hyperledger/fabric-tools:2.2.1
+    image: hyperledger/fabric-tools:2.3.2
     environment:
       - GOPATH=/opt/gopath
       - CORE_PEER_ADDRESSAUTODETECT=true
@@ -388,7 +388,7 @@ services:
 
   cli-peer0-oracle:
     container_name: cli-peer0-oracle
-    image: hyperledger/fabric-tools:2.2.1
+    image: hyperledger/fabric-tools:2.3.2
     environment:
       - GOPATH=/opt/gopath
       - CORE_PEER_ADDRESSAUTODETECT=true
@@ -423,7 +423,7 @@ services:
 
   cli-peer1-oracle:
     container_name: cli-peer1-oracle
-    image: hyperledger/fabric-tools:2.2.1
+    image: hyperledger/fabric-tools:2.3.2
     environment:
       - GOPATH=/opt/gopath
       - CORE_PEER_ADDRESSAUTODETECT=true
