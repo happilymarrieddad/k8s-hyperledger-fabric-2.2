@@ -77,9 +77,9 @@ router.post('/', async (req, res) => {
         resource_type_id: req.body.resource_type_id
     }
 
-    await contract.submitTransaction('create', newObj.name, newObj.resource_type_id).catch(err => res.status(400).send(err));;
+    await contract.submitTransaction('create', '', newObj.name, newObj.resource_type_id)
 
-    res.json(newObj);
+    res.json(newObj)
 })
 
 router.put('/:id', async (req, res) => {

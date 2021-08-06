@@ -94,8 +94,8 @@ docker exec -it cli-peer0-ibm bash -c 'peer lifecycle chaincode commit -o ordere
 
 sleep 5
 
-docker exec -it cli-peer0-ibm bash -c 'peer chaincode invoke -C mainchannel -n resources -c '\''{"Args":["Create","CPUs","1"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
-docker exec -it cli-peer0-oracle bash -c 'peer chaincode invoke -C mainchannel -n resources -c '\''{"Args":["Create","Database Servers","1"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
+docker exec -it cli-peer0-ibm bash -c 'peer chaincode invoke -C mainchannel -n resources -c '\''{"Args":["Create","1","CPUs","1"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
+docker exec -it cli-peer0-oracle bash -c 'peer chaincode invoke -C mainchannel -n resources -c '\''{"Args":["Create","2","Database Servers","1"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
 sleep 5
 docker exec -it cli-peer0-ibm bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
 docker exec -it cli-peer1-ibm bash -c 'peer chaincode query -C mainchannel -n resources -c '\''{"Args":["Index"]}'\'' -o orderer0:7050 --tls --cafile=/etc/hyperledger/orderers/msp/tlscacerts/orderers-ca-7054.pem'
