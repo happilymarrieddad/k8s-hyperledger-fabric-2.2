@@ -9,7 +9,7 @@ Minikube Portion of the Readme
 
 Okay, now that we've successfully ran the network locally, let's do this on a local kubernetes installation.
 ```bash
-minikube start
+minikube start --memory=4g --cpus=4
 sleep 5
 kubectl apply -f network/minikube/storage/pvc.yaml
 sleep 10
@@ -29,15 +29,15 @@ example2-55fcbb9cbd-sv4c8   1/1     Running   0          17s
 
 We'll use one of these to setup the files for the network
 ```bash
-kubectl exec -it $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//") -- mkdir -p /host/files/scripts
-kubectl exec -it $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//") -- mkdir -p /host/files/chaincode
+kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//") -- mkdir -p /host/files/scripts
+kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//") -- mkdir -p /host/files/chaincode
 sleep 1
-kubectl cp ./scripts $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files
-kubectl cp ./network/minikube/configtx.yaml $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files
-kubectl cp ./network/minikube/config.yaml $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files
-kubectl cp ./chaincode/resources $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files/chaincode
-kubectl cp ./chaincode/resource_types $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files/chaincode
-kubectl cp ./fabric-samples/bin $(kubectl get pods -o=name | grep example2 | sed "s/^.\{4\}//"):/host/files
+kubectl cp ./scripts $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/
+kubectl cp ./network/minikube/configtx.yaml $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
+kubectl cp ./network/minikube/config.yaml $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
+kubectl cp ./chaincode/resources $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/chaincode
+kubectl cp ./chaincode/resource_types $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files/chaincode
+kubectl cp ./fabric-samples/bin $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//"):/host/files
 ```
 
 Let's bash into the container and make sure everything copied over properly
@@ -82,7 +82,7 @@ IssuerPublicKey  IssuerRevocationPublicKey  admincerts	cacerts  keystore  signce
 root@example1-6858b4f776-wmlth:/host/files/crypto-config/peerOrganizations/ibm/msp# cd tlscacerts/
 ```
 
-Time to generate the artifacts inside one of the containers and in the files folder - NOTE: if you are on OSX you might have to load the proper libs `curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.7` (apt update then apt install curl) (you will also need to cp from bin/* files/bin)
+Time to generate the artifacts inside one of the containers and in the files folder - NOTE: if you are on OSX you might have to load the proper libs `curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.7` (apt update then apt install curl) (you will also need to cp from (this path will depend on where you are in the container) cp bin/* /host/files/bin)
 ```bash
 kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//") bash
 ...
@@ -119,6 +119,13 @@ kubectl apply -f network/minikube/orgs/oracle/
 
 kubectl apply -f network/minikube/orgs/ibm/cli
 kubectl apply -f network/minikube/orgs/oracle/cli
+kubectl delete -f network/minikube/storage/tests
+```
+
+NOTE: you can stop the cas if you don't need them anymore (don't do this if you want to continue making certs later)
+- minikube only has so many resources so sometimes when testing you might need to decide what containers are more important
+```bash
+kubectl delete -f network/minikube/cas
 ```
 
 

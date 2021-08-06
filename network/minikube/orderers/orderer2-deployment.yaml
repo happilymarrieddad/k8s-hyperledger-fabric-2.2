@@ -24,7 +24,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: orderer2
-          image: hyperledger/fabric-orderer:2.2.1
+          image: hyperledger/fabric-orderer:2.3.2
           workingDir: /var/hyperledger/orderer
           ports:
             - containerPort: 7050

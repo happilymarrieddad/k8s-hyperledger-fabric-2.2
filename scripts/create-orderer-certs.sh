@@ -12,7 +12,8 @@ CA_PASSWORD=${3-adminpw}
 CA_URL=${4}
 CA_CERT_PATH=$5
 CA_FULL_URL=${CA_SCHEME}://${CA_USERNAME}:${CA_PASSWORD}@${CA_URL}
-NUM_NODES=${6-3}
+# 7 is a lot and you probably shouldn've ever create more than 7 orderers
+NUM_NODES=${6-7}
 
 #   normalizeMSP <home> <orgName> <adminHome>
 function normalizeMSP {

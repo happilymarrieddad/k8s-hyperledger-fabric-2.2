@@ -631,7 +631,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: peer0-${NEW_ORG_NAME}
-          image: hyperledger/fabric-tools:2.2.1
+          image: hyperledger/fabric-tools:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["sleep"]
           args: ["infinity"]
@@ -711,7 +711,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: peer1-${NEW_ORG_NAME}
-          image: hyperledger/fabric-tools:2.2.1
+          image: hyperledger/fabric-tools:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["sleep"]
           args: ["infinity"]
@@ -834,7 +834,7 @@ spec:
             path: /var/run
       containers:
         - name: peer0-${NEW_ORG_NAME}
-          image: hyperledger/fabric-peer:2.2.1
+          image: hyperledger/fabric-peer:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["peer"]
           args: ["node","start"]
@@ -932,7 +932,7 @@ spec:
             path: /var/run
       containers:
         - name: peer1-${NEW_ORG_NAME}
-          image: hyperledger/fabric-peer:2.2.1
+          image: hyperledger/fabric-peer:2.3.2
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["peer"]
           args: ["node","start"]
