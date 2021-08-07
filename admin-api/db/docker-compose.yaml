@@ -1,0 +1,43 @@
+version: "3"
+
+networks: 
+    admin-api:
+
+services:
+    db:
+        container_name: db
+        image: postgis/postgis
+        ports: 
+            - "5431:5432"
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: admin-api-test
+        networks:
+            - admin-api
+        volumes:
+            - $HOME/docker/volumes/admin-api:/var/lib/postgresql/data
+        restart: unless-stopped
+    dbadmin:
+        container_name: dbadmin
+        image: dpage/pgadmin4:latest
+        ports:
+            # host : container
+            - "5410:80"
+        environment:
+            PGADMIN_DEFAULT_EMAIL: local@mail.com
+            PGADMIN_DEFAULT_PASSWORD: pass
+        depends_on:
+            - db
+        networks:
+            - admin-api
+        restart: unless-stopped
+
+    # nats comm
+    subpub:
+        container_name: subpub
+        image: nats
+        ports:
+            - 4221:4222
+        networks:
+            - admin-api
