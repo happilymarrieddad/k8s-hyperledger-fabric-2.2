@@ -54,6 +54,13 @@ func (m *organizations) Create(org *types.Organization) error {
 	// Set it on the org so that it will be available on the return
 	org.NamespaceCreated = true
 
+	// Create org resources
+	// CA(s)
+	// Certs
+	// TODO: decide if done here or in the UI
+	// Peer(s)
+	// Chaincode(s)
+
 	return sesh.Commit()
 }
 

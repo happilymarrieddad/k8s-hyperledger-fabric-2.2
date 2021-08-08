@@ -3,6 +3,7 @@ package k8client
 import (
 	// "k8s.io/apimachinery/pkg/api/errors"
 	// metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"admin-api/types"
 	"context"
 	"flag"
 	"fmt"
@@ -31,11 +32,20 @@ type Config struct {
 }
 
 type Client interface {
+	// Certificate Authority
+	CreateCertificateAuthority(
+		namespace, persistentVolumeClaimName, username, password, scriptsMountPath,
+		scriptsSubPath, pathToStoreCAFilesSubPath string, port int32, org *types.Organization,
+	) (dplyName, dplyUID, svcName, svcUID, clientName, clientUID string, err error)
+	DeleteCertificateAuthority(org *types.Organization, namespace string) error
 	// Namespace
 	GetNamespace(name string) (ret *corev1.Namespace, err error)
 	GetNamespaces() (ret []*corev1.Namespace, err error)
 	CreateNamespace(name string) (*corev1.Namespace, error)
 	DeleteNamespace(name string) error
+	// Storage
+	CreateStorage(name, namespace string) (pvcUID string, err error)
+	DeleteStorge(name, namespace string) error
 }
 
 func NewClient(cfg *Config) (Client, error) {
