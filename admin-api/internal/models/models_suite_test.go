@@ -35,7 +35,7 @@ func ClearDatabase(db *xorm.Engine) (err error) {
 	return nil
 }
 
-func DestroyKubernetesResource(k8c k8client.Client) error {
+func DestroyKubernetesNamespaces(k8c k8client.Client) error {
 	list, err := k8c.GetNamespaces()
 	if err != nil {
 		return err

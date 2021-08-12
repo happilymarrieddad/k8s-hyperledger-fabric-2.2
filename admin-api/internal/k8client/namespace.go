@@ -53,8 +53,9 @@ func (c *client) CreateNamespace(name string) (*corev1.Namespace, error) {
 	nmsp, _ := c.GetNamespace(name)
 
 	if nmsp != nil && nmsp.Status.Phase == corev1.NamespaceTerminating {
-		c.log("Delaying 10 seconds while the existing namespace is delete... then will proceed with the creation")
-		time.Sleep(time.Second * 10) // Wait 5 seconds for the namespace to be deleted
+		c.log("Delaying 5 seconds while the existing namespace is deleted")
+		time.Sleep(time.Second * 5) // Wait 5 seconds for the namespace to be deleted
+		return c.CreateNamespace(name)
 	}
 
 	req := &corev1.Namespace{}

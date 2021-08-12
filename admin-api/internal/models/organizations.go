@@ -5,63 +5,95 @@ import (
 	"admin-api/types"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"xorm.io/xorm"
 )
 
 type Organizations interface {
-	Create(*types.Organization) error
+	Create(*types.Organization) (storageDeploymentPodID string, err error)
 	FindByID(id int64) (*types.Organization, error)
 	Delete(id int64) error
 }
 
 func NewOrganizations(db *xorm.Engine, k8c k8client.Client) Organizations {
-	return &organizations{db, k8c}
+	return &organizations{
+		db, k8c,
+		// Models
+	}
 }
 
 type organizations struct {
 	db  *xorm.Engine
 	k8c k8client.Client
+	// models
+
 }
 
-func (m *organizations) Create(org *types.Organization) error {
-	if err := types.Validate(org); err != nil {
-		return err
+func (m *organizations) Create(org *types.Organization) (storageDeploymentPodID string, err error) {
+	if err = types.Validate(org); err != nil {
+		return
 	}
 
 	sesh := m.db.NewSession()
 	defer sesh.Close()
 
-	if err := sesh.Begin(); err != nil {
-		return err
+	k8sNetworkCleanup := func() {
+		if errc := m.k8c.DeleteNamespace(org.NetworkName); errc != nil {
+			fmt.Println("unable to cleanup namespace for org ", org.Name)
+		}
 	}
 
-	if _, err := sesh.Insert(org); err != nil {
-		sesh.Rollback()
-		return err
+	if err = sesh.Begin(); err != nil {
+		return
 	}
 
-	if _, err := m.k8c.CreateNamespace(org.NetworkName); err != nil {
+	if _, err = sesh.Insert(org); err != nil {
 		sesh.Rollback()
-		return err
+		return "", errors.WithMessage(err, "unable to insert org")
+	}
+
+	nmsp, err := m.k8c.CreateNamespace(org.NetworkName)
+	if err != nil {
+		sesh.Rollback()
+		return "", errors.WithMessage(err, "unable to create namespace")
 	}
 
 	if _, err := sesh.ID(org.ID).Cols("namespace_created").Update(&types.Organization{NamespaceCreated: true}); err != nil {
-		_ = m.k8c.DeleteNamespace(org.NetworkName)
+		k8sNetworkCleanup()
 		sesh.Rollback()
-		return err
+		return "", errors.WithMessage(err, "unable to update 'namespace_created'")
 	}
 
 	// Set it on the org so that it will be available on the return
 	org.NamespaceCreated = true
 
-	// Create org resources
-	// CA(s)
-	// Certs
-	// TODO: decide if done here or in the UI
-	// Peer(s)
-	// Chaincode(s)
+	// Create a storage
+	stgName := fmt.Sprintf("%s-storage", org.NetworkName)
+	if _, err := m.k8c.CreateNamespaceStorage(stgName, nmsp.Name); err != nil {
+		k8sNetworkCleanup()
+		sesh.Rollback()
+		return "", errors.WithMessage(err, "unable to create storage")
+	}
 
-	return sesh.Commit()
+	// Create an Org deployment
+	storageDeploymentPodID, err = m.k8c.CreateNamespaceStorageDeployment(stgName, nmsp.Name)
+	if err != nil {
+		k8sNetworkCleanup()
+		sesh.Rollback()
+		return "", errors.WithMessage(err, "unable to create storage deployment")
+	}
+
+	// Copy required files to the pod in the deployment
+
+	// Create CA(s)
+
+	// Create certs using ca(s)
+
+	if err = sesh.Commit(); err != nil {
+		k8sNetworkCleanup()
+		err = errors.WithMessage(err, "unable to commit organization")
+	}
+	return
 }
 
 func (m *organizations) FindByID(id int64) (*types.Organization, error) {

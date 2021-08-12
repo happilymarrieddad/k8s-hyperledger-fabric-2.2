@@ -44,23 +44,23 @@ type Client interface {
 	CreateNamespace(name string) (*corev1.Namespace, error)
 	DeleteNamespace(name string) error
 	// Storage
-	CreateStorage(name, namespace string) (pvcUID string, err error)
-	DeleteStorge(name, namespace string) error
+	CreateNamespaceStorage(name, namespace string) (pvcUID string, err error)
+	DeleteNamespaceStorage(name, namespace string) error
+	CreateNamespaceStorageDeployment(storageName, namespace string) (storageDeploymentPodID string, err error)
+	// Pod Operations
+	CopyFileToPod(srcPath string, destPath string, podName, containerName, namespace string) (err error)
 }
 
 func NewClient(cfg *Config) (Client, error) {
+	newClient := new(client)
 	if cfg.Ctx == nil {
 		cfg.Ctx = context.Background()
 	}
 
-	var (
-		config *rest.Config
-		err    error
-	)
-
+	var err error
 	if cfg.IsIncluster {
 		// creates the in-cluster config
-		config, err = rest.InClusterConfig()
+		newClient.restconfig, err = rest.InClusterConfig()
 		if err != nil {
 			return nil, err
 		}
@@ -74,24 +74,28 @@ func NewClient(cfg *Config) (Client, error) {
 		flag.Parse()
 
 		// use the current context in kubeconfig
-		config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		newClient.restconfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := kubernetes.NewForConfig(newClient.restconfig)
 	if err != nil {
 		return nil, err
 	}
 
-	return &client{clientset, cfg}, nil
+	newClient.clientset = clientset
+	newClient.cfg = cfg
+
+	return newClient, nil
 }
 
 type client struct {
-	clientset *kubernetes.Clientset
-	cfg       *Config
+	clientset  *kubernetes.Clientset
+	cfg        *Config
+	restconfig *rest.Config
 }
 
 func (c *client) log(format string, a ...interface{}) {

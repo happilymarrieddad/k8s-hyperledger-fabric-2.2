@@ -8,4 +8,5 @@ func (i imageName) String() string {
 
 const (
 	certificateAuthorityImage imageName = "hyperledger/fabric-ca:1.4.7"
+	storageDeploymentImage    imageName = "nginx:stable"
 )

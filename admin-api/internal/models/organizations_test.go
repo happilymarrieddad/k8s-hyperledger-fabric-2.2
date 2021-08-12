@@ -19,7 +19,7 @@ var _ = Describe("Organizations", func() {
 
 	BeforeEach(func() {
 		Expect(ClearDatabase(db)).To(Succeed())
-		Expect(DestroyKubernetesResource(k8c)).To(Succeed())
+		Expect(DestroyKubernetesNamespaces(k8c)).To(Succeed())
 
 		globalModel = NewGlobalModels(db, k8c)
 		Expect(globalModel).NotTo(BeNil())
@@ -28,23 +28,29 @@ var _ = Describe("Organizations", func() {
 		Expect(orgsModel).NotTo(BeNil())
 
 		org = &types.Organization{
-			Name:        "Some Org",
-			NetworkName: "someorg",
+			Name:          "Some Org",
+			NetworkName:   "someorg",
+			NumberOfCAs:   1,
+			NumberOfPeers: 3,
 		}
 	})
 
-	AfterEach(func() {
-		Expect(ClearDatabase(db)).To(Succeed())
-		Expect(DestroyKubernetesResource(k8c)).To(Succeed())
-	})
+	// AfterEach(func() {
+	// 	Expect(ClearDatabase(db)).To(Succeed())
+	// 	Expect(DestroyKubernetesNamespaces(k8c)).To(Succeed())
+	// })
 
 	Context("Create", func() {
 		It("should successfully create an org and a namespace", func() {
-			Expect(orgsModel.Create(org)).To(Succeed())
+			_, err := orgsModel.Create(org)
+			Expect(err).To(BeNil())
 
 			nmsp, err := k8c.GetNamespace(org.NetworkName)
 			Expect(err).To(BeNil())
 			Expect(nmsp.Name).To(Equal(org.NetworkName))
+
+			// Test a copy to a pod
+			Expect(k8c.CopyFileToPod("./test.txt", "/host/test.txt", "someorg-storage-deployment", "storage-deployment", nmsp.Name)).To(Succeed())
 		})
 	})
 

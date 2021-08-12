@@ -4,7 +4,7 @@ import (
 	"admin-api/types"
 	"fmt"
 
-	v1beta1 "k8s.io/api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -39,7 +39,7 @@ func (c *client) CreateCertificateAuthority(
 
 	// Create the Deployment
 	caPathName := "/etc/hyperledger/fabric-ca-server"
-	createDpl := new(v1beta1.Deployment)
+	createDpl := new(appsv1.Deployment)
 	createDpl.ObjectMeta = metav1.ObjectMeta{
 		Name:      dplyName,
 		Namespace: namespace,
@@ -49,7 +49,7 @@ func (c *client) CreateCertificateAuthority(
 			"type":         "ca",
 		},
 	}
-	createDpl.Spec = v1beta1.DeploymentSpec{
+	createDpl.Spec = appsv1.DeploymentSpec{
 		Replicas: setReplicas(1),
 		Selector: &metav1.LabelSelector{
 			MatchLabels: createDpl.ObjectMeta.Labels,
@@ -68,7 +68,8 @@ func (c *client) CreateCertificateAuthority(
 					{
 						Name:    dplyName,
 						Image:   certificateAuthorityImage.String(),
-						Command: []string{"sleep", "infinity"},
+						Command: []string{"sleep"},
+						Args:    []string{"infinity"},
 						Ports:   []v1.ContainerPort{{ContainerPort: port}},
 						Env: []v1.EnvVar{
 							{Name: "FABRIC_CA_HOME", Value: caPathName},
@@ -86,7 +87,7 @@ func (c *client) CreateCertificateAuthority(
 		},
 	}
 
-	dpl, err := c.clientset.AppsV1beta1().Deployments(namespace).Create(c.cfg.Ctx, createDpl, metav1.CreateOptions{})
+	dpl, err := c.clientset.AppsV1().Deployments(namespace).Create(c.cfg.Ctx, createDpl, metav1.CreateOptions{})
 	if err != nil {
 		return
 	}
@@ -120,7 +121,7 @@ func (c *client) CreateCertificateAuthority(
 
 	// Create the client
 	clientName = fmt.Sprintf("%s-client", dplyName)
-	createClient := new(v1beta1.Deployment)
+	createClient := new(appsv1.Deployment)
 	createClient.ObjectMeta = metav1.ObjectMeta{
 		Name:      clientName,
 		Namespace: namespace,
@@ -130,7 +131,7 @@ func (c *client) CreateCertificateAuthority(
 			"type":         "ca",
 		},
 	}
-	createClient.Spec = v1beta1.DeploymentSpec{
+	createClient.Spec = appsv1.DeploymentSpec{
 		Replicas: setReplicas(1),
 		Selector: &metav1.LabelSelector{
 			MatchLabels: createClient.ObjectMeta.Labels,
@@ -175,7 +176,7 @@ func (c *client) CreateCertificateAuthority(
 		},
 	}
 
-	client, err := c.clientset.AppsV1beta1().Deployments(namespace).Create(c.cfg.Ctx, createClient, metav1.CreateOptions{})
+	client, err := c.clientset.AppsV1().Deployments(namespace).Create(c.cfg.Ctx, createClient, metav1.CreateOptions{})
 	if err != nil {
 		return
 	}
