@@ -27,7 +27,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: peer0-ibm
-          image: hyperledger/fabric-tools:2.3.2
+          image: hyperledger/fabric-tools:2.4
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["sleep"]
           args: ["infinity"]

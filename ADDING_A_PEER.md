@@ -216,7 +216,7 @@ spec:
             path: /var/run
       containers:
         - name: peer2-ibm
-          image: hyperledger/fabric-peer:2.3.2
+          image: hyperledger/fabric-peer:2.4
           workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
           command: ["peer"]
           args: ["node","start"]
