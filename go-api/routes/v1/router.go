@@ -30,11 +30,11 @@ func GetRoutes(clients *hyperledger.Clients) map[string]models.SubRoutePackage {
 				models.Route{Name: "UsersUpdate", Method: "PATCH", Pattern: "/users/{id}", HandlerFunc: UsersHandler.Update()},
 				models.Route{Name: "UsersDestroy", Method: "DELETE", Pattern: "/users/{id}", HandlerFunc: UsersHandler.Destroy()},
 				// ResourceTypes
-				models.Route{Name: "ResourceTypesIndex", Method: "GET", Pattern: "/resourcetypes", HandlerFunc: ResourceTypesHandler.Index(clients)},
-				models.Route{Name: "ResourceTypesStore", Method: "POST", Pattern: "/resourcetypes", HandlerFunc: ResourceTypesHandler.Store()},
-				models.Route{Name: "ResourceTypesReplace", Method: "PUT", Pattern: "/resourcetypes/{id}", HandlerFunc: ResourceTypesHandler.Update()},
-				models.Route{Name: "ResourceTypesUpdate", Method: "PATCH", Pattern: "/resourcetypes/{id}", HandlerFunc: ResourceTypesHandler.Update()},
-				models.Route{Name: "ResourceTypesDestroy", Method: "DELETE", Pattern: "/resourcetypes/{id}", HandlerFunc: ResourceTypesHandler.Destroy()},
+				models.Route{Name: "ResourceTypesIndex", Method: "GET", Pattern: "/resource_types", HandlerFunc: ResourceTypesHandler.Index(clients)},
+				models.Route{Name: "ResourceTypesStore", Method: "POST", Pattern: "/resource_types", HandlerFunc: ResourceTypesHandler.Store()},
+				models.Route{Name: "ResourceTypesReplace", Method: "PUT", Pattern: "/resource_types/{id}", HandlerFunc: ResourceTypesHandler.Update()},
+				models.Route{Name: "ResourceTypesUpdate", Method: "PATCH", Pattern: "/resource_types/{id}", HandlerFunc: ResourceTypesHandler.Update()},
+				models.Route{Name: "ResourceTypesDestroy", Method: "DELETE", Pattern: "/resource_types/{id}", HandlerFunc: ResourceTypesHandler.Destroy()},
 				// Resources
 				models.Route{Name: "ResourcesIndex", Method: "GET", Pattern: "/resources", HandlerFunc: ResourcesHandler.Index(clients)},
 				models.Route{Name: "ResourcesStore", Method: "POST", Pattern: "/resources", HandlerFunc: ResourcesHandler.Store(clients)},
