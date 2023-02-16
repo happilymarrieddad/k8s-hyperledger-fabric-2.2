@@ -1,0 +1,19 @@
+maxinflight: 10
+maxtxwaittime: 60
+sendconcurrency: 25
+receipts:
+  maxdocs: 1000
+  querylimit: 100
+  retryinitialdelay: 5
+  retrytimeout: 30
+  leveldb:
+    path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/fabconnect/receipts
+events:
+  webhooksAllowPrivateIPs: true
+  leveldb:
+    path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/fabconnect/events
+http:
+  port: 3000
+rpc:
+  useGatewayClient: true
+  configpath: /home/nick/Projects/k8s-hyperledger-fabric-2.2/fabconnect/ccp.yaml
