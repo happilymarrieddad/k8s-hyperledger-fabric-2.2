@@ -8,3 +8,5 @@ NOTES.md
 channels
 orderer
 **/go.sum
+**/fabconnect/events
+**/fabconnect/receipts
