@@ -5,7 +5,7 @@ certificateAuthorities:
   orderers-ca:
     tlsCACerts:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/state/ca/orderers/server/tls-cert.pem
-    url: orderers-ca:7054
+    url: http://localhost:7054
     registrar:
       enrollId: admin
       enrollSecret: adminpw
@@ -14,16 +14,7 @@ certificateAuthorities:
   ibm-ca:
     tlsCACerts:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/state/ca/ibm/server/tls-cert.pem
-    url: ibm-ca:7054
-    registrar:
-      enrollId: admin
-      enrollSecret: adminpw
-    httpOptions:
-      verify: false
-  oracle-ca:
-    tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/state/ca/oracle/server/tls-cert.pem
-    url: oracle-ca:7054
+    url: http://localhost:7055
     registrar:
       enrollId: admin
       enrollSecret: adminpw
@@ -52,7 +43,6 @@ channels:
           backoffFactor: 2.0
 
 client:
-
   organization: ibm
 
   logging:
@@ -99,7 +89,7 @@ orderers:
     grpcOptions:
       ssl-target-name-override: orderer0
       grpc-max-send-message-length: 15
-    
+    url: http://localhost:7050
     tlsCACerts:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
 
@@ -108,7 +98,7 @@ orderers:
     grpcOptions:
       ssl-target-name-override: orderer1
       grpc-max-send-message-length: 15
-    
+    url: http://localhost:7051
     tlsCACerts:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
 
@@ -117,23 +107,20 @@ orderers:
     grpcOptions:
       ssl-target-name-override: orderer2
       grpc-max-send-message-length: 15
-    
+    url: http://localhost:7052
     tlsCACerts:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+
 organizations:
   ibm:
     mspid: ibm
     cryptopath: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/users/Admin@ibm/msp
     peers:
       - peer0-ibm
-      - peer1-ibm
     certificateAuthorities:
-      - orderers-ca
       - ibm-ca
-      - oracle-ca
 
 peers:
-
   _default:
     grpcOptions:
       keep-alive-time: 1s
@@ -146,61 +133,8 @@ peers:
     grpcOptions:
       ssl-target-name-override: peer0-ibm
       grpc.http2.keepalive_time: 15
-    
+    url: http://localhost:7060
     tlsCACerts:
       path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
 
-  peer1-ibm:
-    grpcOptions:
-      ssl-target-name-override: peer1-ibm
-      grpc.http2.keepalive_time: 15
-    
-    tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
-
-version: 1.1.0%
-
-entityMatchers:
-
-  peer:
-    - pattern: (\w*)peer0-ibm(\w*)
-      urlSubstitutionExp: peer0-ibm:7051
-      sslTargetOverrideUrlSubstitutionExp: peer0-ibm
-      mappedHost: peer0-ibm
-
-    - pattern: (\w*)peer1-ibm(\w*)
-      urlSubstitutionExp: peer1-ibm:8051
-      sslTargetOverrideUrlSubstitutionExp: peer1-ibm
-      mappedHost: peer1-ibm
-
-  orderer:
-    - pattern: (\w*)orderer0(\w*)
-      urlSubstitutionExp: orderer0:7050
-      sslTargetOverrideUrlSubstitutionExp: orderer0
-      mappedHost: orderer0
-
-    - pattern: (\w*)orderer1(\w*)
-      urlSubstitutionExp: orderer1t:7050
-      sslTargetOverrideUrlSubstitutionExp: orderer1
-      mappedHost: orderer1
-      
-    - pattern: (\w*)orderer2(\w*)
-      urlSubstitutionExp: orderer2:7050
-      sslTargetOverrideUrlSubstitutionExp: orderer2
-      mappedHost: orderer2
-
-  certificateAuthority:
-    - pattern: (\w+)orderers-ca(\w+)
-      urlSubstitutionExp: orderers-ca:7054
-      sslTargetOverrideUrlSubstitutionExp: orderers-ca
-      mappedHost: orderers-ca
-
-    - pattern: (\w+)ibm-ca(\w+)
-      urlSubstitutionExp: ibm-ca:7054
-      sslTargetOverrideUrlSubstitutionExp: ibm-ca
-      mappedHost: ibm-ca
-
-    - pattern: (\w+)oracle-ca(\w+)
-      urlSubstitutionExp: oracle-ca:7054
-      sslTargetOverrideUrlSubstitutionExp: oracle-ca
-      mappedHost: oracle-ca
+version: 1.1.0

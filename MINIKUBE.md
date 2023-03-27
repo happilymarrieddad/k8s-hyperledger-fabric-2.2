@@ -47,6 +47,12 @@ kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//")
 
 Finally ready to start the ca containers
 ```bash
+kubectl apply -f network/minikube/cas/orderers-ca-deployment.yaml
+kubectl apply -f network/minikube/cas/ibm-ca-deployment.yaml
+kubectl apply -f network/minikube/cas/oracle-ca-deployment.yaml
+
+sleep 30
+
 kubectl apply -f network/minikube/cas
 ```
 

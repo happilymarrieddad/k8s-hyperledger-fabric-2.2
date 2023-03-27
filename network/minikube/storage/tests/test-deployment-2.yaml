@@ -6,7 +6,7 @@ metadata:
     component: example2
   }
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       component: example2
@@ -24,7 +24,7 @@ spec:
             path: /var/run
       containers:
         - name: example2
-          image: nginx:stable
+          image: golang:1.19
           command: ["sleep"]
           args: ["infinity"]
           volumeMounts:

@@ -58,6 +58,35 @@ channels:
           maxBackoff: 10s
           backoffFactor: 2.0
 
+certificateAuthorities:
+  orderers-ca:
+    tlsCACerts:
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/state/ca/orderers/server/tls-cert.pem
+    url: orderers-ca:7054
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    httpOptions:
+      verify: false
+  ibm-ca:
+    tlsCACerts:
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/state/ca/ibm/server/tls-cert.pem
+    url: ibm-ca:7054
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    httpOptions:
+      verify: false
+  oracle-ca:
+    tlsCACerts:
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/state/ca/oracle/server/tls-cert.pem
+    url: oracle-ca:7054
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    httpOptions:
+      verify: false
+
 organizations:
   ibm:
     mspid: ibm
@@ -65,6 +94,10 @@ organizations:
     peers:
       - peer0-ibm
       - peer1-ibm
+    certificateAuthorities:
+      - orderers-ca
+      - ibm-ca
+      - oracle-ca
 
 orderers:
   _default:
@@ -155,3 +188,19 @@ entityMatchers:
       urlSubstitutionExp: orderer2:7050
       sslTargetOverrideUrlSubstitutionExp: orderer2
       mappedHost: orderer2
+
+  certificateAuthority:
+    - pattern: (\w+)orderers-ca(\w+)
+      urlSubstitutionExp: orderers-ca:7054
+      sslTargetOverrideUrlSubstitutionExp: orderers-ca
+      mappedHost: orderers-ca
+
+    - pattern: (\w+)ibm-ca(\w+)
+      urlSubstitutionExp: ibm-ca:7054
+      sslTargetOverrideUrlSubstitutionExp: ibm-ca
+      mappedHost: ibm-ca
+
+    - pattern: (\w+)oracle-ca(\w+)
+      urlSubstitutionExp: oracle-ca:7054
+      sslTargetOverrideUrlSubstitutionExp: oracle-ca
+      mappedHost: oracle-ca

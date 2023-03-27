@@ -463,32 +463,32 @@ services:
     networks:
       - hyperledger
 
-  explorer:
-    image: hyperledger/explorer:latest
-    container_name: explorer
-    hostname: explorer
-    environment:
-      - DATABASE_HOST=explorerdb
-      - DATABASE_DATABASE=fabricexplorer
-      - DATABASE_USERNAME=hppoc
-      - DATABASE_PASSWD=password
-      - LOG_LEVEL_APP=debug
-      - LOG_LEVEL_DB=debug
-      - LOG_LEVEL_CONSOLE=info
-      - LOG_CONSOLE_STDOUT=true
-      - DISCOVERY_AS_LOCALHOST=false
-    volumes:
-      - ./explorer/config.json:/opt/explorer/app/platform/fabric/config.json
-      - ./explorer/connection-profile:/opt/explorer/app/platform/fabric/connection-profile
-      - ../../crypto-config:/tmp/crypto
-      - ./explorer/walletstore:/opt/wallet
-    ports:
-      - 8080:8080
-    depends_on:
-      explorerdb:
-        condition: service_healthy
-    networks:
-      - hyperledger
+  # explorer:
+  #   image: hyperledger/explorer:latest
+  #   container_name: explorer
+  #   hostname: explorer
+  #   environment:
+  #     - DATABASE_HOST=explorerdb
+  #     - DATABASE_DATABASE=fabricexplorer
+  #     - DATABASE_USERNAME=hppoc
+  #     - DATABASE_PASSWD=password
+  #     - LOG_LEVEL_APP=debug
+  #     - LOG_LEVEL_DB=debug
+  #     - LOG_LEVEL_CONSOLE=info
+  #     - LOG_CONSOLE_STDOUT=true
+  #     - DISCOVERY_AS_LOCALHOST=false
+  #   volumes:
+  #     - ./explorer/config.json:/opt/explorer/app/platform/fabric/config.json
+  #     - ./explorer/connection-profile:/opt/explorer/app/platform/fabric/connection-profile
+  #     - ../../crypto-config:/tmp/crypto
+  #     - ./explorer/walletstore:/opt/wallet
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     explorerdb:
+  #       condition: service_healthy
+  #   networks:
+  #     - hyperledger
 
   ibm-api:
     container_name: ibm-api
@@ -526,3 +526,5 @@ services:
         condition: service_healthy
     networks:
       - hyperledger
+    
+  
