@@ -41,7 +41,8 @@ kops create cluster \
     --master-count 3 \
     --authorization AlwaysAllow --yes \
     --master-volume-size 40 \
-    --node-volume-size 20
+    --node-volume-size 20 \
+    --name hyperledger.k8s.local
 ```
 
 To delete the cluster

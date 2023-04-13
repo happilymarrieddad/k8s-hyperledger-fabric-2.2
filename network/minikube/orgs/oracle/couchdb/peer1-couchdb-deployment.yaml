@@ -27,7 +27,7 @@ spec:
             claimName: my-pv-claim
       containers:
         - name: peer1-oracle-couchdb
-          image: couchdb:3.3.1
+          image: couchdb:latest
           env:
             - name: COUCHDB_USER
               value: nick

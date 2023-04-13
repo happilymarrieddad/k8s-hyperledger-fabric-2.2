@@ -1,0 +1,149 @@
+name: "default-svc-cluster-local-network"
+
+version: 2.2.1
+
+certificateAuthorities:
+  ibm-ca-service:
+    tlsCACerts:
+      path: /crypto-config/peerOrganizations/ibm/msp/cacerts/ca.ibm-cert.pem
+    url: ibm-ca-service:7054
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    httpOptions:
+      verify: false
+
+channels:
+  mainchannel:
+
+    peers:
+      peer0-ibm:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    policies:
+      queryChannelConfig:
+        minResponses: 1
+        maxTargets: 1
+        retryOpts:
+          attempts: 5
+          initialBackoff: 1000ms
+          maxBackoff: 10s
+          backoffFactor: 2.0
+
+client:
+  organization: ibm
+
+  logging:
+    level: info
+  
+  cryptoconfig:
+    path: /crypto-config
+
+  # Some SDKs support pluggable KV stores, the properties under "credentialStore"
+  # are implementation specific
+  credentialStore:
+    # [Optional]. Used by user store. Not needed if all credentials are embedded in configuration
+    # and enrollments are performed elsewhere.
+    path: "/tmp/state-store"
+
+    # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations
+    # requiring a key store. PKCS#11 based implementations does not.
+    cryptoStore:
+      # Specific to the underlying KeyValueStore that backs the crypto key store.
+      path: /tmp/msp
+
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "SW"
+      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+  
+  tlsCerts:
+    systemCertPool: true
+
+orderers:
+  _default:
+    grpcOptions:
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+  
+  orderer0:
+    grpcOptions:
+      ssl-target-name-override: orderer0
+      grpc-max-send-message-length: 15
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-service-7054.pem
+
+  orderer1:
+    grpcOptions:
+      ssl-target-name-override: orderer1
+      grpc-max-send-message-length: 15
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-service-7054.pem
+
+  orderer2:
+    grpcOptions:
+      ssl-target-name-override: orderer2
+      grpc-max-send-message-length: 15
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-service-7054.pem
+
+organizations:
+  ibm:
+    certificateAuthorities:
+      - ibm-ca-service
+    cryptopath: peerOrganizations/ibm/users/Admin@ibm/msp
+    mspid: ibm
+    peers:
+      - peer0-ibm
+
+peers:
+  peer0-ibm:
+    tlsCACerts:
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-service-7054.pem
+    grpcOptions:
+      ssl-target-name-override: peer0-ibm-service:7051
+      hostnameOverride: peer0-ibm-service:7051
+
+entityMatchers:
+  peer:
+    - pattern: (\w*)peer0-ibm-service(\w*)
+      urlSubstitutionExp: peer0-ibm-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-ibm-service
+      mappedHost: peer0-ibm-service
+
+    - pattern: (\w*)peer0-ibm(\w*)
+      urlSubstitutionExp: peer0-ibm-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-ibm-service
+      mappedHost: peer0-ibm-service
+
+  orderer:
+    - pattern: (\w*)orderer0-service(\w*)
+      urlSubstitutionExp: orderer0-service:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer0-service
+      mappedHost: orderer0-service
+
+    - pattern: (\w*)orderer1-service(\w*)
+      urlSubstitutionExp: orderer1-servicet:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer1-service
+      mappedHost: orderer1-service
+      
+    - pattern: (\w*)orderer2-service(\w*)
+      urlSubstitutionExp: orderer2-service:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer2-service
+      mappedHost: orderer2-service
+
+  certificateAuthority:
+    - pattern: (\w+)ibm-ca-service(\w+)
+      urlSubstitutionExp: ibm-ca-service:7054
+      sslTargetOverrideUrlSubstitutionExp: ibm-ca-service
+      mappedHost: ibm-ca-service

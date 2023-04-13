@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fabconnect-ibm-deployment
+  labels: {
+    component: fabconnect,
+    type: api,
+    org: ibm
+  }
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: fabconnect
+      type: api
+      org: ibm
+  template:
+    metadata:
+      labels:
+        component: fabconnect
+        type: api
+        org: ibm
+    spec:
+      volumes:
+        - name: my-pv-storage
+          persistentVolumeClaim:
+            claimName: my-pv-claim
+      containers:
+        - name: fabconnect
+          image: ghcr.io/hyperledger/firefly-fabconnect:latest
+          command: ["sleep"]
+          args: ["infinity"]
+          env:
+            - name: CORE_VM_ENDPOINT
+              value: unix:///var/run/docker.sock
+          volumeMounts:
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+            - mountPath: /crypto-config
+              name: my-pv-storage
+              subPath: files/crypto-config
+            - mountPath: /fabconnect/receipts
+              name: my-pv-storage
+              subPath: files/fabconnect/receipts
+            - mountPath: /fabconnect/events
+              name: my-pv-storage
+              subPath: files/fabconnect/events

@@ -47,6 +47,7 @@ kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//")
 
 Finally ready to start the ca containers
 ```bash
+kubectl apply -f network/minikube/orgs/ibm/couchdb/peer0-couchdb-deployment.yaml
 kubectl apply -f network/minikube/cas/orderers-ca-deployment.yaml
 kubectl apply -f network/minikube/cas/ibm-ca-deployment.yaml
 kubectl apply -f network/minikube/cas/oracle-ca-deployment.yaml
@@ -104,6 +105,8 @@ bin/configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channels/oracle-
 
 Let's try to start up the orderers
 ```bash
+kubectl apply -f network/minikube/orderers/orderer0-deployment.yaml
+
 kubectl apply -f network/minikube/orderers
 ```
 

@@ -35,13 +35,15 @@ spec:
           command: ["peer"]
           args: ["node","start"]
           env:
-            # - name: FABRIC_LOGGING_SPEC
-            #   value: DEBUG
+            - name: FABRIC_LOGGING_SPEC
+              value: "error"
             - name: CORE_VM_ENDPOINT
               value: unix:///var/run/docker.sock
             - name: CORE_PEER_ADDRESSAUTODETECT
               value: "true"
             - name: CORE_VM_DOCKER_ATTACHOUT
+              value: "true"
+            - name: CORE_VM_DOCKER_ATTACHSTDOUT
               value: "true"
             - name: CORE_PEER_ID
               value: peer0-ibm-service
@@ -92,3 +94,6 @@ spec:
             - mountPath: /etc/hyperledger/orderers
               name: my-pv-storage
               subPath: files/crypto-config/ordererOrganizations/orderer
+            - mountPath: /var/hyperledger/production
+              name: my-pv-storage
+              subPath: files/state/ibm/peer0

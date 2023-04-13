@@ -1,0 +1,20 @@
+maxinflight: 10
+maxtxwaittime: 60
+sendconcurrency: 25
+receipts:
+  maxdocs: 1000
+  querylimit: 100
+  retryinitialdelay: 5
+  retrytimeout: 30
+  leveldb:
+    path: /fabconnect/receipts
+events:
+  webhooksAllowPrivateIPs: true
+  leveldb:
+    path: /fabconnect/events
+http:
+  port: 3000
+#  localAddr: "ip_address_here"
+rpc:
+  useGatewayClient: true
+  configpath: /fabconnect/config/ccp.yaml
