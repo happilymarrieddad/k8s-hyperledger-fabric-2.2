@@ -1,20 +1,12 @@
-# ***** certificateAuthorities section *****
-# The test-network-nano-bash does not start the Fabric-CA node, but we must keep the 
-# certificateAuthorities section because otherwise the fabconnect does not start
+name: "default-svc-cluster-local-network"
+
+version: 2.2.1
+
 certificateAuthorities:
-  orderers-ca:
+  ibm-ca-service:
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/state/ca/orderers/server/tls-cert.pem
-    url: http://localhost:7054
-    registrar:
-      enrollId: admin
-      enrollSecret: adminpw
-    httpOptions:
-      verify: false
-  ibm-ca:
-    tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/state/ca/ibm/server/tls-cert.pem
-    url: http://localhost:7055
+      path: /crypto-config/peerOrganizations/ibm/msp/cacerts/ca.ibm-cert.pem
+    url: ibm-ca-service:7054
     registrar:
       enrollId: admin
       enrollSecret: adminpw
@@ -22,7 +14,6 @@ certificateAuthorities:
       verify: false
 
 channels:
-
   mainchannel:
 
     peers:
@@ -31,7 +22,7 @@ channels:
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
-  
+
     policies:
       queryChannelConfig:
         minResponses: 1
@@ -49,7 +40,7 @@ client:
     level: info
   
   cryptoconfig:
-    path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config
+    path: /crypto-config
 
   # Some SDKs support pluggable KV stores, the properties under "credentialStore"
   # are implementation specific
@@ -89,52 +80,70 @@ orderers:
     grpcOptions:
       ssl-target-name-override: orderer0
       grpc-max-send-message-length: 15
-    url: http://localhost:7050
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-service-7054.pem
 
-  
   orderer1:
     grpcOptions:
       ssl-target-name-override: orderer1
       grpc-max-send-message-length: 15
-    url: http://localhost:7051
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-service-7054.pem
 
-  
   orderer2:
     grpcOptions:
       ssl-target-name-override: orderer2
       grpc-max-send-message-length: 15
-    url: http://localhost:7052
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-service-7054.pem
 
 organizations:
   ibm:
+    certificateAuthorities:
+      - ibm-ca-service
+    cryptopath: peerOrganizations/ibm/users/Admin@ibm/msp
     mspid: ibm
-    cryptopath: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/users/Admin@ibm/msp
     peers:
       - peer0-ibm
-    certificateAuthorities:
-      - ibm-ca
 
 peers:
-  _default:
-    grpcOptions:
-      keep-alive-time: 1s
-      keep-alive-timeout: 20s
-      keep-alive-permit: false
-      fail-fast: false
-      allow-insecure: false
-    
   peer0-ibm:
-    grpcOptions:
-      ssl-target-name-override: peer0-ibm
-      grpc.http2.keepalive_time: 15
-    url: http://localhost:7060
     tlsCACerts:
-      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/msp/tlscacerts/ibm-ca-7054.pem
+      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-service-7054.pem
+    grpcOptions:
+      ssl-target-name-override: peer0-ibm-service:7051
+      hostnameOverride: peer0-ibm-service:7051
 
-version: 1.1.0
+entityMatchers:
+  peer:
+    - pattern: (\w*)peer0-ibm-service(\w*)
+      urlSubstitutionExp: peer0-ibm-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-ibm-service
+      mappedHost: peer0-ibm-service
+
+    - pattern: (\w*)peer0-ibm(\w*)
+      urlSubstitutionExp: peer0-ibm-service:7051
+      sslTargetOverrideUrlSubstitutionExp: peer0-ibm-service
+      mappedHost: peer0-ibm-service
+
+  orderer:
+    - pattern: (\w*)orderer0-service(\w*)
+      urlSubstitutionExp: orderer0-service:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer0-service
+      mappedHost: orderer0-service
+
+    - pattern: (\w*)orderer1-service(\w*)
+      urlSubstitutionExp: orderer1-servicet:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer1-service
+      mappedHost: orderer1-service
+      
+    - pattern: (\w*)orderer2-service(\w*)
+      urlSubstitutionExp: orderer2-service:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer2-service
+      mappedHost: orderer2-service
+
+  certificateAuthority:
+    - pattern: (\w+)ibm-ca-service(\w+)
+      urlSubstitutionExp: ibm-ca-service:7054
+      sslTargetOverrideUrlSubstitutionExp: ibm-ca-service
+      mappedHost: ibm-ca-service
