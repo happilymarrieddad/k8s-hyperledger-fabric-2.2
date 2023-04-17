@@ -14,6 +14,7 @@ sleep 5
 kubectl apply -f network/minikube/storage/pvc.yaml
 sleep 10
 kubectl apply -f network/minikube/storage/tests
+kubectl apply -f network/minikube/orgs/ibm/couchdb/peer0-couchdb-deployment.yaml
 ```
 
 Now we have storage and we're going to test it. You can do a kubectl get pods to see what pods are up. Here's how I can connect to my containers. You should split your terminal and connect to both.
@@ -47,7 +48,6 @@ kubectl exec -it $(kubectl get pods -o=name | grep example1 | sed "s/^.\{4\}//")
 
 Finally ready to start the ca containers
 ```bash
-kubectl apply -f network/minikube/orgs/ibm/couchdb/peer0-couchdb-deployment.yaml
 kubectl apply -f network/minikube/cas/orderers-ca-deployment.yaml
 kubectl apply -f network/minikube/cas/ibm-ca-deployment.yaml
 kubectl apply -f network/minikube/cas/oracle-ca-deployment.yaml
@@ -129,6 +129,9 @@ kubectl apply -f network/minikube/orgs/oracle/
 kubectl apply -f network/minikube/orgs/ibm/cli
 kubectl apply -f network/minikube/orgs/oracle/cli
 kubectl delete -f network/minikube/storage/tests
+kubectl delete -f network/minikube/cas/ibm-ca-client-deployment.yaml
+kubectl delete -f network/minikube/cas/oracle-ca-client-deployment.yaml
+kubectl delete -f network/minikube/cas/orderers-ca-client-deployment.yaml
 ```
 
 NOTE: you can stop the cas if you don't need them anymore (don't do this if you want to continue making certs later)

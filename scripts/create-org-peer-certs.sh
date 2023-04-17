@@ -113,7 +113,7 @@ function main {
         dstMSP=$nodeDir/msp
         export FABRIC_CA_CLIENT_HOME=$tlsDir
         mkdir -p $tlsDir
-        $CLIENT enroll -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH} --csr.hosts $host,${host}-service,fabconnect-ibm-deployment,fabconnect-oracle-deployment,fabconnect-ibm-service,fabconnect-oracle-service --enrollment.profile tls
+        $CLIENT enroll -u ${CA_FULL_URL} --tls.certfiles ${CA_CERT_PATH} --csr.hosts $host,${host}-service,localhost,127.0.0.1,0.0.0.0,fabconnect-ibm-deployment,fabconnect-oracle-deployment,fabconnect-ibm-service,fabconnect-oracle-service --enrollment.profile tls
         cp $srcMSP/signcerts/* $tlsDir/server.crt
         cp $srcMSP/keystore/* $tlsDir/server.key
         mkdir -p $dstMSP/keystore

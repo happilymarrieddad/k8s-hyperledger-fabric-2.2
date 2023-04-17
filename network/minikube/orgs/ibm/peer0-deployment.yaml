@@ -35,8 +35,8 @@ spec:
           command: ["peer"]
           args: ["node","start"]
           env:
-            - name: FABRIC_LOGGING_SPEC
-              value: "error"
+            # - name: FABRIC_LOGGING_SPEC
+            #   value: "error"
             - name: CORE_VM_ENDPOINT
               value: unix:///var/run/docker.sock
             - name: CORE_PEER_ADDRESSAUTODETECT
