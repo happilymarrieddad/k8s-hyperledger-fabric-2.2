@@ -11,6 +11,15 @@ import (
 	"k8s-hyperledger-fabric-2.2/go-api/router"
 )
 
+type Service interface {
+	Init(port int) error
+	Start()
+}
+
+func NewServer() Service {
+	return &Server{}
+}
+
 type Server struct {
 	Initialized    bool
 	Addr           string

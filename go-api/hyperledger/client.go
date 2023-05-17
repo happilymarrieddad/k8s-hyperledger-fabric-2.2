@@ -1,8 +1,6 @@
 package hyperledger
 
 import (
-	"log"
-
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 

@@ -47,6 +47,14 @@ func GetRouter() Service {
 		panic(err)
 	}
 
+	if err = clients.SetupChannelListener(MSPID, "mainchannel", "resources"); err != nil {
+		panic(err)
+	}
+
+	if err = clients.SetupChannelListener(MSPID, "mainchannel", "resource_types"); err != nil {
+		panic(err)
+	}
+
 	r.RawRouter.
 		PathPrefix(staticDir).
 		Handler(http.StripPrefix(staticDir, http.FileServer(http.Dir("."+staticDir))))
