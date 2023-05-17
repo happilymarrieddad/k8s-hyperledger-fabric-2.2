@@ -22,6 +22,22 @@ spec:
         - name: my-pv-storage
           persistentVolumeClaim:
             claimName: my-pv-claim
+      initContainers:
+        - name: setup-orderers-ca
+          image: curlimages/curl:latest
+          args:
+            - /bin/sh
+            - -c
+            - >
+              set -x;
+              while [ $(curl -sw '%{http_code}' "http://orderers-ca-service:7054/cainfo" -o /dev/null) -ne 200 ]; do
+                sleep 15;
+              done
+          volumeMounts:
+            - mountPath: /scripts
+              name: my-pv-storage
+              subPath: files/scripts
+              readOnly: true
       containers:
         - name: orderers-ca-client
           image: hyperledger/fabric-ca:1.4.7
@@ -60,3 +76,4 @@ spec:
             - mountPath: /etc/hyperledger/fabric-ca/crypto-config
               name: my-pv-storage
               subPath: files/crypto-config
+        

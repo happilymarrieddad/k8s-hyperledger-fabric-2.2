@@ -526,5 +526,35 @@ services:
         condition: service_healthy
     networks:
       - hyperledger
+
+  fabconnect:
+    container_name: fabconnect
+    image: ghcr.io/hyperledger/firefly-fabconnect:latest
+    command: -f /fabconnect/fabconnect.yaml
+    ports:
+      - 3000:3000
+    volumes:
+      - ../../fabconnect/fabconnect_receipts:/fabconnect/receipts
+      - ../../fabconnect/fabconnect_events:/fabconnect/events
+      - ../../fabconnect/ccp.yaml:/fabconnect/ccp.yaml
+      - ../../fabconnect/fabconnect.yaml:/fabconnect/fabconnect.yaml
+      - ../../crypto-config/:/crypto-config
+      - ../../state/:/state
+      - /tmp/state-store:/tmp/state-store
+      - /tmp/msp:/tmp/msp
+    networks:
+      - hyperledger
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -O
+        - '-'
+        - http://localhost:3000/status
+    logging:
+      driver: json-file
+      options:
+        max-file: "1"
+        max-size: 10m
     
   

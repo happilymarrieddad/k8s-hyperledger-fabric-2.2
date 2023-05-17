@@ -5,8 +5,8 @@ version: 2.2.1
 certificateAuthorities:
   ibm-ca:
     tlsCACerts:
-      path: /crypto-config/peerOrganizations/ibm/msp/cacerts/ca.ibm-cert.pem
-    url: https://ibm-ca:7054
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/msp/cacerts/ca.ibm-cert.pem
+    url: https://localhost:7055
     registrar:
       enrollId: admin
       enrollSecret: adminpw
@@ -40,20 +40,20 @@ client:
     level: info
   
   cryptoconfig:
-    path: /crypto-config
+    path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config
 
   # Some SDKs support pluggable KV stores, the properties under "credentialStore"
   # are implementation specific
   credentialStore:
     # [Optional]. Used by user store. Not needed if all credentials are embedded in configuration
     # and enrollments are performed elsewhere.
-    path: "/tmp/state-store"
+    path: "/home/nick/Projects/k8s-hyperledger-fabric-2.2/client/state-store"
 
     # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations
     # requiring a key store. PKCS#11 based implementations does not.
     cryptoStore:
       # Specific to the underlying KeyValueStore that backs the crypto key store.
-      path: /tmp/msp
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/client/msp
 
   BCCSP:
     security:
@@ -77,25 +77,28 @@ orderers:
       allow-insecure: false
   
   orderer0:
+    url: http://localhost:7050
     grpcOptions:
       ssl-target-name-override: orderer0
       grpc-max-send-message-length: 15
     tlsCACerts:
-      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
 
   orderer1:
+    url: http://localhost:8050
     grpcOptions:
       ssl-target-name-override: orderer1
       grpc-max-send-message-length: 15
     tlsCACerts:
-      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
 
   orderer2:
+    url: http://localhost:9050
     grpcOptions:
       ssl-target-name-override: orderer2
       grpc-max-send-message-length: 15
     tlsCACerts:
-      path: /crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/ordererOrganizations/orderer/msp/tlscacerts/orderers-ca-7054.pem
 
 organizations:
   ibm:
@@ -105,45 +108,21 @@ organizations:
     mspid: ibm
     peers:
       - peer0-ibm
+      - peer1-ibm
 
 peers:
   peer0-ibm:
+    url: http://localhost:7051
     tlsCACerts:
-      path: /crypto-config/peerOrganizations/ibm/peers/peer0-ibm/msp/tlscacerts/tlsca.ibm-cert.pem
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/peers/peer0-ibm/msp/tlscacerts/tlsca.ibm-cert.pem
     grpcOptions:
       ssl-target-name-override: peer0-ibm:7051
       hostnameOverride: peer0-ibm:7051
+  peer1-ibm:
+    url: http://localhost:8051
+    tlsCACerts:
+      path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/crypto-config/peerOrganizations/ibm/peers/peer1-ibm/msp/tlscacerts/tlsca.ibm-cert.pem
+    grpcOptions:
+      ssl-target-name-override: peer1-ibm:7051
+      hostnameOverride: peer1-ibm:7051
 
-entityMatchers:
-  peer:
-    - pattern: (\w*)peer0-ibm(\w*)
-      urlSubstitutionExp: peer0-ibm:7051
-      sslTargetOverrideUrlSubstitutionExp: peer0-ibm
-      mappedHost: peer0-ibm
-
-    - pattern: (\w*)peer0-ibm(\w*)
-      urlSubstitutionExp: peer0-ibm:7051
-      sslTargetOverrideUrlSubstitutionExp: peer0-ibm
-      mappedHost: peer0-ibm
-
-  orderer:
-    - pattern: (\w*)orderer0(\w*)
-      urlSubstitutionExp: orderer0:7050
-      sslTargetOverrideUrlSubstitutionExp: orderer0
-      mappedHost: orderer0
-
-    - pattern: (\w*)orderer1(\w*)
-      urlSubstitutionExp: orderer1t:7050
-      sslTargetOverrideUrlSubstitutionExp: orderer1
-      mappedHost: orderer1
-      
-    - pattern: (\w*)orderer2(\w*)
-      urlSubstitutionExp: orderer2:7050
-      sslTargetOverrideUrlSubstitutionExp: orderer2
-      mappedHost: orderer2
-
-  certificateAuthority:
-    - pattern: (\w+)ibm-ca(\w+)
-      urlSubstitutionExp: ibm-ca:7054
-      sslTargetOverrideUrlSubstitutionExp: ibm-ca
-      mappedHost: ibm-ca

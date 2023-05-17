@@ -1,7 +1,7 @@
 version: '2'
 
 networks:
-  fabric-ca:
+  hyperledger:
 
 services:
   # Servers
@@ -20,7 +20,7 @@ services:
       - ../../scripts:/scripts
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
-      - fabric-ca
+      - hyperledger
   ibm-ca:
     image: hyperledger/fabric-ca:1.4.7
     container_name: ibm-ca
@@ -36,7 +36,7 @@ services:
       - ../../scripts:/scripts
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
-      - fabric-ca
+      - hyperledger
   oracle-ca:
     image: hyperledger/fabric-ca:1.4.7
     container_name: oracle-ca
@@ -52,7 +52,7 @@ services:
       - ../../scripts:/scripts
     command: sh -c '/scripts/start-root-ca.sh'
     networks:
-      - fabric-ca
+      - hyperledger
   # Clients
   orderers-client:
     tty: true
@@ -73,7 +73,7 @@ services:
       - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
     command: sh -c '/scripts/start-orderer-client.sh'
     networks:
-      - fabric-ca
+      - hyperledger
     depends_on:
       - orderers-ca
   ibm-client:
@@ -96,7 +96,7 @@ services:
       - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
     command: sh -c '/scripts/start-org-client.sh'
     networks:
-      - fabric-ca
+      - hyperledger
     depends_on:
       - ibm-ca
   oracle-client:
@@ -119,6 +119,6 @@ services:
       - ../../crypto-config:/etc/hyperledger/fabric-ca/crypto-config
     command: sh -c '/scripts/start-org-client.sh'
     networks:
-      - fabric-ca
+      - hyperledger
     depends_on:
       - oracle-ca

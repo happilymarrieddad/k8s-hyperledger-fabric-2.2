@@ -7,13 +7,13 @@ receipts:
   retryinitialdelay: 5
   retrytimeout: 30
   leveldb:
-    path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/fabconnect/receipts
+    path: /fabconnect/receipts
 events:
   webhooksAllowPrivateIPs: true
   leveldb:
-    path: /home/nick/Projects/k8s-hyperledger-fabric-2.2/fabconnect/events
+    path: /fabconnect/events
 http:
   port: 3000
 rpc:
   useGatewayClient: true
-  configpath: /home/nick/Projects/k8s-hyperledger-fabric-2.2/fabconnect/ccp.yaml
+  configpath: /fabconnect/ccp.yaml

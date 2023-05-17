@@ -15,4 +15,5 @@ COPY --from=builder /app/api /app/api
 COPY ./fabconnect.yaml /app/fabconnect.yaml
 COPY ./ccp.yaml /app/ccp.yaml
 
-CMD ["/app/api","-f","/app/fabconnect.yaml"]
+#CMD ["/app/api","-f","/app/fabconnect.yaml"]
+CMD ["sleep", "infinity"]
