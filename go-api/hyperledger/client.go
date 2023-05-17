@@ -1,12 +1,16 @@
 package hyperledger
 
 import (
+	"log"
+
+	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 
 	sdkchannel "github.com/hyperledger/fabric-sdk-go/pkg/client/channel"
 	mspclient "github.com/hyperledger/fabric-sdk-go/pkg/client/msp"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/resmgmt"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/retry"
+	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
 )
@@ -125,6 +129,26 @@ func (c *Clients) Invoke(org string, channel string, chaincode string, fcn strin
 	ret = resp.Payload
 
 	return
+}
+
+func (c *Clients) SetupChannelListener(org, channel, chaincode string) (err error) {
+	client, err := c.GetClient(org, channel)
+	if err != nil {
+		return
+	}
+
+	_, el, err := client.ChannelClient.RegisterChaincodeEvent(chaincode, "")
+	if err != nil {
+		return err
+	}
+
+	go func(e <-chan *fab.CCEvent) {
+		for event := range e {
+			spew.Dump(event)
+		}
+	}(el)
+
+	return nil
 }
 
 func NewClientMap(name string, configPath string) *Clients {
